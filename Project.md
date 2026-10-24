@@ -11,7 +11,7 @@ Dự án chia làm hai phase:
 
 Hạn nộp: **23:59 ngày 14/11/2026** (Electronic Commerce CO3027).
 
-> Tài liệu này là kế hoạch tổng thể cho cả nhóm và cho báo cáo. Đặc tả kỹ thuật chi tiết dành cho người code (lệnh, cấu hình, API, quy ước) nằm ở `CLAUDE.md`. Hai file mâu thuẫn thì theo `CLAUDE.md`.
+> Tài liệu này là kế hoạch tổng thể cho cả nhóm và cho báo cáo. Hướng dẫn cài đặt, lệnh chạy và tài liệu kỹ thuật nằm ở `README.md` và thư mục `docs/`.
 
 ---
 
@@ -241,7 +241,6 @@ Hai app độc lập trong một repo, mỗi app có `package.json` và lockfile
 
 ```
 pawl/
-├── CLAUDE.md                     # đặc tả kỹ thuật chi tiết
 ├── Project.md                    # kế hoạch tổng thể + tiến độ (file này)
 ├── README.md                     # hướng dẫn cài đặt + chạy (Part 4.2)
 ├── docs/
