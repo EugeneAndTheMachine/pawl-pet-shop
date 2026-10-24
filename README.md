@@ -29,7 +29,7 @@ Làm theo [docs/supabase-setup.md](docs/supabase-setup.md): tạo project (regio
 cd apps/backend
 npm install
 cp .env.example .env        # rồi điền DATABASE_URL, S3_*, JWT_SECRET, COOKIE_SECRET
-npx medusa exec ./src/scripts/check-db.ts      # in ra phiên bản Postgres nếu kết nối ổn
+node ./src/scripts/check-db.mjs                # in ra phiên bản Postgres nếu kết nối ổn (chạy được cả khi DB còn trống)
 npx medusa db:migrate                          # lần đầu mất vài phút vì DB ở Singapore
 npx medusa exec ./src/scripts/seed.ts          # (từ M1) region VN, kho, vận chuyển, publishable key
 npx medusa exec ./src/scripts/seed-catalog.ts  # (từ M1) danh mục + sản phẩm mẫu

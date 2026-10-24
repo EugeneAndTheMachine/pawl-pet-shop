@@ -54,7 +54,7 @@ Bucket public nên **chỉ chứa ảnh công khai** (ảnh sản phẩm, sau n�
 
 **Storage → Settings** (mục **S3 Connection / S3 Configuration**):
 1. Bật **Enable connection via S3 protocol** nếu đang tắt.
-2. Chép **Endpoint** (dạng `https://<PROJECT_REF>.storage.supabase.co/storage/v1/s3`) và **Region** (dạng `ap-southeast-1`).
+2. Chép **Endpoint** (dạng `https://<PROJECT_REF>.storage.supabase.co/storage/v1/s3`) và **Region** (dạng `ap-southeast-1`). Region phải **trùng với region của project**, tức là cùng phần `ap-...` trong host của Session pooler. Nếu sai region thì mọi thao tác với Storage (kể cả upload ảnh trong Admin) đều báo `SignatureDoesNotMatch`.
 3. Mục **S3 Access Keys → New access key** → đặt mô tả `medusa-backend` → chép **Access key ID** và **Secret access key** (secret chỉ hiện một lần).
 
 Key này có toàn quyền trên mọi bucket và bỏ qua RLS, nên **chỉ đặt trong `apps/backend/.env`**, không bao giờ đặt ở storefront hay commit lên git.
@@ -77,8 +77,10 @@ Kiểm tra kết nối:
 
 ```bash
 cd apps/backend
-npx medusa exec ./src/scripts/check-db.ts
+node ./src/scripts/check-db.mjs
 ```
+
+Script này không khởi động Medusa nên chạy được trước khi migrate. Kết nối ổn thì in ra phiên bản Postgres, `TLS: yes` và số bảng trong schema `public` (lần đầu là 0). Lỗi thì in mã lỗi kèm gợi ý cách sửa.
 
 ## Lưu ý gói Free
 

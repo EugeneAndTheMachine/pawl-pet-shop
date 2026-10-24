@@ -19,7 +19,7 @@ Hạn nộp: **23:59 ngày 14/11/2026** (Electronic Commerce CO3027).
 
 | Milestone | Nội dung | Kế hoạch | Trạng thái |
 | --- | --- | --- | --- |
-| M0 | Thiết lập: Supabase, backend Medusa, storefront Vite | 19–21/10 | **Đang làm**: code xong, chờ project Supabase `pawl-dev` |
+| M0 | Thiết lập: Supabase, backend Medusa, storefront Vite | 19–21/10 | **Gần xong**: đã migrate, upload ảnh chạy được; còn thử upload trên giao diện Admin, xác nhận Data API, commit |
 | M1 | Dữ liệu mẫu: region VN, kho, vận chuyển, danh mục, 20–40 sản phẩm | 22–24/10 | Chưa bắt đầu |
 | M2 | Storefront: trang chủ, danh sách, lọc, chi tiết sản phẩm | 25–30/10 | Chưa bắt đầu |
 | M3 | Giỏ hàng, checkout, COD + VNPay sandbox | 31/10–05/11 | Chưa bắt đầu |
@@ -35,7 +35,7 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 - Node 22.19 (Medusa 2.21 cần `^20.19` hoặc `>=22.12`).
 - **Backend** `apps/backend`: Medusa **2.21.2**, tạo bằng `create-medusa-app --skip-db`, không kèm storefront Next.js.
   - `medusa-config.ts`: SSL tới Supabase theo biến `DB_SSL`; File Module dùng `file-s3` (Supabase Storage, `forcePathStyle: true`) khi có S3 key, ngược lại `file-local`; không khai báo Redis.
-  - `src/scripts/check-db.ts` kiểm tra kết nối; `.env.example` đủ biến (DB, S3, CORS, secret, VNPay).
+  - `src/scripts/check-db.mjs` kiểm tra kết nối (chạy độc lập bằng `node`, không cần DB đã migrate); `.env.example` đủ biến (DB, S3, CORS, secret, VNPay).
   - Typecheck, lint (`@medusajs/eslint-plugin`) và `medusa build` đều chạy qua không lỗi.
 - **Storefront** `apps/storefront`: Vite 8 + React 19 + TypeScript (strict) + Tailwind CSS v4, đã cài `@medusajs/js-sdk`, React Router 7, TanStack Query 5, react-hook-form + zod 4.
   - Có khung: SDK, QueryClient, router, header "Pawl", trang chủ tạm, trang 404.
@@ -43,14 +43,23 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
   - Build và lint không lỗi; dev server chạy được.
 - Tài liệu: `README.md`, `docs/supabase-setup.md`. Repo git đã khởi tạo; `.env` bị bỏ qua, chỉ commit `.env.example`.
 
-### 1.2 M0: còn lại
+### 1.2 M0: kết quả kiểm tra trên Supabase (24/10)
 
-1. Tạo project Supabase `pawl-dev` theo `docs/supabase-setup.md`, điền `apps/backend/.env`.
-2. Chạy `check-db.ts` (thử cả có và không có hậu tố `?ssl_mode=disable`) → `db:migrate` → tạo tài khoản admin.
-3. Upload thử 1 ảnh trong Admin, kiểm tra file nằm trong bucket `pawl-media` và mở được bằng URL public.
-4. Xác nhận Data API đã tắt, rồi commit M0.
+- Project `pawl-dev` nằm ở region **`ap-northeast-1` (Tokyo)**, không phải Singapore như kế hoạch. Pooler: `aws-0-ap-northeast-1.pooler.supabase.com:5432`.
+- `check-db.mjs`: kết nối được, có TLS, PostgreSQL 17.11.
+- Hậu tố `?ssl_mode=disable`: Medusa kết nối được cả khi có và khi không có hậu tố. Giữ hậu tố theo khuyến nghị của tài liệu Medusa.
+- `npx medusa db:migrate`: chạy xong, tạo 148 bảng trong schema `public`.
+- Tài khoản admin `admin@pawl.local` đã tạo, đăng nhập qua API được.
+- Upload ảnh qua S3 file provider của Medusa: file vào đúng bucket `pawl-media`, URL public trả về đúng ảnh. `S3_REGION` phải trùng region của project (`ap-northeast-1`), nếu khác sẽ bị `SignatureDoesNotMatch`.
+- `npm run build` của backend và storefront, lint storefront: không lỗi.
 
-### 1.3 Thay đổi so với kế hoạch ban đầu (15/10)
+### 1.3 M0: còn lại
+
+1. ~~Upload thử 1 ảnh trên giao diện Admin~~: đã xong 24/10. Ảnh của sản phẩm thử "Áo cho chó" nằm trong `pawl-media`, URL public trả về 200.
+2. Xác nhận trên dashboard rằng Data API đã tắt (không kiểm tra được từ bên ngoài khi không dùng anon key).
+3. Commit M0.
+
+### 1.4 Thay đổi so với kế hoạch ban đầu (15/10)
 
 | Kế hoạch cũ | Hiện tại | Lý do |
 | --- | --- | --- |
@@ -140,7 +149,7 @@ Phase 1 đã chừa đường cho Phase 2: thuộc tính lọc lưu bằng tag t
 
 | Thành phần | Dev | Demo / deploy | Ghi chú |
 | --- | --- | --- | --- |
-| PostgreSQL | Supabase `pawl-dev` (Singapore, Session pooler 5432) | Supabase `pawl-demo` | Gói Free: 500 MB DB; tự tạm dừng sau 7 ngày không hoạt động |
+| PostgreSQL | Supabase `pawl-dev` (Tokyo `ap-northeast-1`, Session pooler 5432) | Supabase `pawl-demo` | Gói Free: 500 MB DB; tự tạm dừng sau 7 ngày không hoạt động |
 | Ảnh | Supabase Storage (`file-s3`) | Như dev | Gói Free: 1 GB; nén ảnh ≤ 1200px, < 300 KB |
 | Redis | Không dùng (Medusa dùng bản in-memory) | Thêm Upstash nếu cần (job Phase 2, nhiều instance) | |
 | Backend + Admin | `npm run dev` | Railway / Render / VPS (chọn ở M5) | Cookie session cần xem lại khi 2 app khác domain |
@@ -256,7 +265,7 @@ pawl/
     │       ├── api/              # store/vnpay/verify, hooks/vnpay/ipn, middlewares.ts
     │       ├── modules/vnpay/    # payment provider + lib/sign.ts, build-url.ts
     │       ├── subscribers/      # order-placed, reset password
-    │       ├── scripts/          # check-db.ts, seed.ts, seed-catalog.ts
+    │       ├── scripts/          # check-db.mjs, seed.ts, seed-catalog.ts
     │       ├── admin/ jobs/ links/ workflows/   # dùng ở Phase 2
     └── storefront/               # Vite + React
         └── src/
