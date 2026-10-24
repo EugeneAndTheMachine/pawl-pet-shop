@@ -19,9 +19,9 @@ Hạn nộp: **23:59 ngày 14/11/2026** (Electronic Commerce CO3027).
 
 | Milestone | Nội dung | Kế hoạch | Trạng thái |
 | --- | --- | --- | --- |
-| M0 | Thiết lập: Supabase, backend Medusa, storefront Vite | 19–21/10 | **Gần xong**: đã migrate, upload ảnh chạy được; còn thử upload trên giao diện Admin, xác nhận Data API, commit |
-| M1 | Dữ liệu mẫu: region VN, kho, vận chuyển, danh mục, 20–40 sản phẩm | 22–24/10 | Chưa bắt đầu |
-| M2 | Storefront: trang chủ, danh sách, lọc, chi tiết sản phẩm | 25–30/10 | Chưa bắt đầu |
+| M0 | Thiết lập: Supabase, backend Medusa, storefront Vite | 19–21/10 | **Xong** (24/10) |
+| M1 | Dữ liệu mẫu: region VN, kho, vận chuyển, danh mục, 20–40 sản phẩm | 22–24/10 | **Xong** (24/10) |
+| M2 | Storefront: trang chủ, danh sách, lọc, chi tiết sản phẩm | 25–30/10 | **Xong** (24/10), chờ duyệt + commit |
 | M3 | Giỏ hàng, checkout, COD + VNPay sandbox | 31/10–05/11 | Chưa bắt đầu |
 | M4 | Tài khoản: đăng ký, đăng nhập, sổ địa chỉ, lịch sử đơn | 06–09/11 | Chưa bắt đầu |
 | M5 | Trang chính sách, SEO, responsive, bảo mật, `pawl-demo`, tài liệu, test | 10–13/11 | Chưa bắt đầu |
@@ -53,13 +53,27 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 - Upload ảnh qua S3 file provider của Medusa: file vào đúng bucket `pawl-media`, URL public trả về đúng ảnh. `S3_REGION` phải trùng region của project (`ap-northeast-1`), nếu khác sẽ bị `SignatureDoesNotMatch`.
 - `npm run build` của backend và storefront, lint storefront: không lỗi.
 
-### 1.3 M0: còn lại
+- Upload ảnh trên giao diện Admin: ảnh vào `pawl-media`, URL public trả về 200. Data API đã tắt (xác nhận trên dashboard). M0 đã commit.
 
-1. ~~Upload thử 1 ảnh trên giao diện Admin~~: đã xong 24/10. Ảnh của sản phẩm thử "Áo cho chó" nằm trong `pawl-media`, URL public trả về 200.
-2. Xác nhận trên dashboard rằng Data API đã tắt (không kiểm tra được từ bên ngoài khi không dùng anon key).
-3. Commit M0.
+### 1.3 M1: dữ liệu mẫu (24/10)
 
-### 1.4 Thay đổi so với kế hoạch ban đầu (15/10)
+- `src/scripts/seed.ts`: store "Pawl" chỉ dùng VND, giá đã gồm VAT (price preference tax-inclusive cho `vnd` và cho region); region "Việt Nam" (`vn`, thanh toán `pp_system_default`, tự thêm `pp_vnpay_vnpay` khi provider VNPay có mặt ở M3); tax region VN với VAT mặc định 10% (đơn giản hoá cho demo); kho "Kho TP.HCM" nối với provider fulfillment manual và sales channel; fulfillment set + service zone "Toàn quốc"; 2 shipping option giá cố định 30.000₫ / 45.000₫; dùng lại publishable key có sẵn, gắn với sales channel, in key ra console.
+- `src/scripts/seed-catalog.ts` + `src/scripts/data/catalog.ts`: 13 danh mục (Mèo 6 nhánh, Chó 5 nhánh), 36 sản phẩm, 65 biến thể, 22 tag theo quy ước mục 6.3 (script báo lỗi nếu tag sai quy ước), collection "Bán chạy" (9 sản phẩm), tồn kho tại "Kho TP.HCM". Biến thể `RC-URINARY-2KG` để tồn kho 0 cho trường hợp hết hàng.
+- Cả hai script đã chạy 2 lần: lần 2 không tạo thêm bản ghi, không trùng SKU.
+- `GET /store/products` (có publishable key + `region_id`) trả về `calculated_price` bằng `vnd`, `is_calculated_price_tax_inclusive: true` và tồn kho theo biến thể. Không có publishable key thì trả 400.
+- Sản phẩm thử "Áo cho chó" (tạo tay ở M0) chỉ có giá EUR nên không có giá VND. Nên xoá trong Admin.
+
+### 1.4 M2: storefront duyệt sản phẩm (24/10)
+
+- **Thiết kế** theo landing page trong `materials/`: header navy, hero "Pawl / The Pal of your Paw", khối "Về Pawl" nền kem, "Sản phẩm của Pawl" 4 thẻ trên nền navy, footer nền kem có thông tin pháp lý demo. Thêm các khối chuẩn B2C: dải cam kết, Bán chạy, Mua theo nhu cầu sức khoẻ, Sản phẩm mới, Đặt định kỳ (sắp ra mắt, tĩnh).
+- Ảnh trong `materials/` được nén sang WebP và đặt ở `apps/storefront/src/assets/images/` (tổng khoảng 400 KB, ảnh gốc 6 MB). Logo được cắt sát và có thêm bản chữ tối cho nền sáng; ảnh sản phẩm vệ sinh đã xoá nền caro.
+- **Trang danh sách** `/products`, `/c/:handle`, `/search?q=`: lọc theo loài, giai đoạn tuổi, sức khoẻ, "không chứa", dạng sản phẩm (OR trong một nhóm, AND giữa các nhóm qua `$and` + `tag_id` của Store API), khoảng giá, sắp xếp, phân trang; trạng thái bộ lọc nằm trên URL; skeleton, trạng thái rỗng, lỗi; drawer bộ lọc trên mobile.
+- **Trang chi tiết** `/products/:handle`: gallery, thương hiệu, tag tiếng Việt, giá theo biến thể, tồn kho (còn / sắp hết / hết), chọn biến thể (lưu `?variant=` trên URL), số lượng, thêm vào giỏ, tab Mô tả / Thành phần / Hướng dẫn cho ăn, sản phẩm cùng danh mục, thanh mua hàng dính đáy trên mobile.
+- **Giỏ hàng tối thiểu** (để icon giỏ và mini-cart chạy được): CartProvider lưu `cart_id` trong localStorage, tạo cart theo region VN khi thêm món đầu tiên, sửa số lượng, xoá. Trang `/cart`, mã giảm giá và checkout làm ở M3.
+- Đã kiểm tra bằng trình duyệt headless ở 375 px và 1280 px: không tràn ngang, không lỗi console; lọc, sắp xếp giá, đổi biến thể, thêm vào giỏ, 404 đều chạy đúng.
+- Giới hạn: Store API không sắp xếp theo giá, nên khi sắp xếp hoặc lọc theo giá storefront tải toàn bộ sản phẩm khớp bộ lọc rồi xử lý phía client (ổn với vài trăm sản phẩm). Link Đăng nhập/Đăng ký, `/cart`, `/checkout`, `/policies/*` sẽ có ở M3–M5.
+
+### 1.5 Thay đổi so với kế hoạch ban đầu (15/10)
 
 | Kế hoạch cũ | Hiện tại | Lý do |
 | --- | --- | --- |
@@ -74,6 +88,9 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 | Giao hàng GHN | 2 phương thức giá cố định (provider manual) | Như trên |
 | Tra cứu đơn cho Guest, quiz | Không làm ở Phase 1 | Giảm phạm vi |
 | `@hookform/resolvers` bản mới nhất | Bản 5 | Bản 6 xung đột peer dependency (`effect`) |
+| Font phụ đề "Figma Hand" | **Patrick Hand** (Google Fonts) | Figma Hand không có trên Google Fonts; Patrick Hand cùng phong cách viết tay và hỗ trợ tiếng Việt |
+| Nút bấm màu `#F18926` chữ trắng | Nút dùng `#B8590B` (cùng tông cam, đậm hơn); `#F18926` giữ cho tiêu đề, badge, điểm nhấn | Chữ trắng trên `#F18926` chỉ đạt tương phản 2,5:1; `#B8590B` đạt 4,8:1 (chuẩn WCAG AA) |
+| Mục "My Pet" trên menu (mockup) | Thay bằng nút chuyển Mèo / Chó | Hồ sơ pet thuộc Phase 2 |
 
 ---
 

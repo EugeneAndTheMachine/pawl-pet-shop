@@ -30,9 +30,9 @@ cd apps/backend
 npm install
 cp .env.example .env        # rồi điền DATABASE_URL, S3_*, JWT_SECRET, COOKIE_SECRET
 node ./src/scripts/check-db.mjs                # in ra phiên bản Postgres nếu kết nối ổn (chạy được cả khi DB còn trống)
-npx medusa db:migrate                          # lần đầu mất vài phút vì DB ở Singapore
-npx medusa exec ./src/scripts/seed.ts          # (từ M1) region VN, kho, vận chuyển, publishable key
-npx medusa exec ./src/scripts/seed-catalog.ts  # (từ M1) danh mục + sản phẩm mẫu
+npx medusa db:migrate                          # lần đầu mất vài phút vì DB ở xa (Supabase)
+npx medusa exec ./src/scripts/seed.ts          # region VN, thuế, kho, vận chuyển, publishable key
+npx medusa exec ./src/scripts/seed-catalog.ts  # 13 danh mục, 36 sản phẩm mẫu, tồn kho
 npx medusa user -e admin@pawl.local -p <mat-khau>
 npm run dev
 ```
@@ -57,6 +57,15 @@ Mở http://localhost:5173.
 - **Project Supabase gói Free tự tạm dừng sau 7 ngày không hoạt động.** Trước buổi demo hoặc chấm bài, vào dashboard Supabase kiểm tra project đang chạy (bấm **Restore** nếu bị dừng).
 - Gói Free có 1 GB storage: nén ảnh trước khi upload qua Admin (WebP/JPEG, cạnh dài ≤ 1200px, dưới 300 KB).
 - Làm việc nhóm trên database dùng chung: chỉ một người chạy seed; ai pull code có migration mới thì chạy `npx medusa db:migrate`.
+
+## Dữ liệu mẫu
+
+Hai script seed chạy lại nhiều lần được: thứ gì đã có thì bỏ qua, không tạo trùng và không ghi đè chỉnh sửa trong Admin.
+
+- `seed.ts`: store "Pawl" chỉ dùng VND; region "Việt Nam" thanh toán COD; giá **đã gồm VAT** (tax-inclusive, thuế suất mặc định 10%, đơn giản hoá cho demo); kho "Kho TP.HCM"; 2 phương thức giao hàng: tiêu chuẩn 30.000₫, nhanh 45.000₫. Cuối script in ra publishable key để chép vào `apps/storefront/.env`.
+- `seed-catalog.ts`: cây danh mục Mèo/Chó, 36 sản phẩm (1–3 biến thể mỗi sản phẩm), collection "Bán chạy", tồn kho tại "Kho TP.HCM". Thuộc tính lọc lưu bằng tag dạng `prefix:value` (`species:`, `life:`, `health:`, `free:`, `form:`); `product.metadata` có `brand`, `ingredients`, `kcal_per_kg`, `feeding_guide`.
+- Tên thương hiệu là thật, nhưng **mô tả, thành phần, kcal và hướng dẫn cho ăn do nhóm tự soạn cho demo**, không phải thông số chính thức của nhà sản xuất. Ảnh là placeholder (placehold.co); ảnh thật upload qua Admin.
+- Giá trong Medusa v2 lưu theo đơn vị chính, VND không có phần lẻ: `145000` nghĩa là 145.000₫. ESLint rule `@medusajs/prices-in-major-units` cảnh báo nhầm với VND; đó chỉ là warning, không phải lỗi.
 
 ## Tài khoản demo
 
