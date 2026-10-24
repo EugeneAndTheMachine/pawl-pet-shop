@@ -1,0 +1,1 @@
+#F18926 (for important text. title, ...), #395686 (For subbackground (need to highlighting something)), #413333 (for normal text), #F4EBDD (for background)

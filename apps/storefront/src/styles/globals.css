@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* Design tokens — palette from materials/Color template */
+@theme {
+  --color-brand: #f18926;       /* titles, important text, primary actions */
+  --color-brand-dark: #d9741a;
+  --color-accent: #395686;      /* highlight sub-backgrounds */
+  --color-ink: #413333;         /* body text */
+  --color-cream: #f4ebdd;       /* page background */
+  --color-surface: #fffaf3;     /* cards */
+  --color-line: #e6d9c6;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Pacifico", cursive;
+}
+
+@layer base {
+  html {
+    @apply bg-cream text-ink font-sans antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+}
