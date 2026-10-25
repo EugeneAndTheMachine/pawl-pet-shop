@@ -22,7 +22,7 @@ Hạn nộp: **23:59 ngày 14/11/2026** (Electronic Commerce CO3027).
 | M0 | Thiết lập: Supabase, backend Medusa, storefront Vite | 19–21/10 | **Xong** (24/10) |
 | M1 | Dữ liệu mẫu: region VN, kho, vận chuyển, danh mục, 20–40 sản phẩm | 22–24/10 | **Xong** (24/10) |
 | M2 | Storefront: trang chủ, danh sách, lọc, chi tiết sản phẩm | 25–30/10 | **Xong** (24/10) |
-| M3 | Giỏ hàng, checkout, COD + VNPay sandbox | 31/10–05/11 | **Xong** (25/10), chờ duyệt + commit; VNPay chờ key sandbox thật |
+| M3 | Giỏ hàng, checkout, COD + thanh toán online (QR, giả lập) | 31/10–05/11 | **Xong** (25/10), chờ duyệt + commit |
 | M4 | Tài khoản: đăng ký, đăng nhập, sổ địa chỉ, lịch sử đơn | 06–09/11 | Chưa bắt đầu |
 | M5 | Trang chính sách, SEO, responsive, bảo mật, `pawl-demo`, tài liệu, test | 10–13/11 | Chưa bắt đầu |
 | — | Dự phòng, nộp bài | 14/11 | — |
@@ -35,7 +35,7 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 - Node 22.19 (Medusa 2.21 cần `^20.19` hoặc `>=22.12`).
 - **Backend** `apps/backend`: Medusa **2.21.2**, tạo bằng `create-medusa-app --skip-db`, không kèm storefront Next.js.
   - `medusa-config.ts`: SSL tới Supabase theo biến `DB_SSL`; File Module dùng `file-s3` (Supabase Storage, `forcePathStyle: true`) khi có S3 key, ngược lại `file-local`; không khai báo Redis.
-  - `src/scripts/check-db.mjs` kiểm tra kết nối (chạy độc lập bằng `node`, không cần DB đã migrate); `.env.example` đủ biến (DB, S3, CORS, secret, VNPay).
+  - `src/scripts/check-db.mjs` kiểm tra kết nối (chạy độc lập bằng `node`, không cần DB đã migrate); `.env.example` đủ biến (DB, S3, CORS, secret).
   - Typecheck, lint (`@medusajs/eslint-plugin`) và `medusa build` đều chạy qua không lỗi.
 - **Storefront** `apps/storefront`: Vite 8 + React 19 + TypeScript (strict) + Tailwind CSS v4, đã cài `@medusajs/js-sdk`, React Router 7, TanStack Query 5, react-hook-form + zod 4.
   - Có khung: SDK, QueryClient, router, header "Pawl", trang chủ tạm, trang 404.
@@ -57,7 +57,7 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 
 ### 1.3 M1: dữ liệu mẫu (24/10)
 
-- `src/scripts/seed.ts`: store "Pawl" chỉ dùng VND, giá đã gồm VAT (price preference tax-inclusive cho `vnd` và cho region); region "Việt Nam" (`vn`, thanh toán `pp_system_default`, tự thêm `pp_vnpay_vnpay` khi provider VNPay có mặt ở M3); tax region VN với VAT mặc định 10% (đơn giản hoá cho demo); kho "Kho TP.HCM" nối với provider fulfillment manual và sales channel; fulfillment set + service zone "Toàn quốc"; 2 shipping option giá cố định 30.000₫ / 45.000₫; dùng lại publishable key có sẵn, gắn với sales channel, in key ra console.
+- `src/scripts/seed.ts`: store "Pawl" chỉ dùng VND, giá đã gồm VAT (price preference tax-inclusive cho `vnd` và cho region); region "Việt Nam" (`vn`, thanh toán `pp_system_default`, từ M3 thêm `pp_qr_qr` (chuyển khoản QR giả lập)); tax region VN với VAT mặc định 10% (đơn giản hoá cho demo); kho "Kho TP.HCM" nối với provider fulfillment manual và sales channel; fulfillment set + service zone "Toàn quốc"; 2 shipping option giá cố định 30.000₫ / 45.000₫; dùng lại publishable key có sẵn, gắn với sales channel, in key ra console.
 - `src/scripts/seed-catalog.ts` + `src/scripts/data/catalog.ts`: 13 danh mục (Mèo 6 nhánh, Chó 5 nhánh), 36 sản phẩm, 65 biến thể, 22 tag theo quy ước mục 6.3 (script báo lỗi nếu tag sai quy ước), collection "Bán chạy" (9 sản phẩm), tồn kho tại "Kho TP.HCM". Biến thể `RC-URINARY-2KG` để tồn kho 0 cho trường hợp hết hàng.
 - Cả hai script đã chạy 2 lần: lần 2 không tạo thêm bản ghi, không trùng SKU.
 - `GET /store/products` (có publishable key + `region_id`) trả về `calculated_price` bằng `vnd`, `is_calculated_price_tax_inclusive: true` và tồn kho theo biến thể. Không có publishable key thì trả 400.
@@ -79,21 +79,19 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 - **Giỏ hàng** `/cart` + mini-cart: sửa số lượng, xoá, mã giảm giá (`PAWL10` giảm 10%, tạo trong `seed.ts`; mã sai thì báo lỗi), tạm tính, giảm giá, phí ship, tổng, phần VAT đã gồm.
 - **Checkout** `/checkout`: accordion 5 bước Contact → Delivery address → Delivery method → Payment → Review, validate từng bước bằng zod (SĐT VN, 34 tỉnh/thành). Tiến độ suy ra từ chính cart nên F5 vẫn giữ bước; bấm "Edit" để quay lại bước trước, không nhảy cóc được. SĐT liên hệ lưu ở `cart.metadata.contact_phone`. Bước Review bắt buộc tick đồng ý Điều khoản + Chính sách bảo mật.
 - **COD:** `cart.complete` → xoá `cart_id` → `/orders/:id/confirmed`. Đơn có trạng thái thanh toán `authorized` (thu khi giao).
-- **VNPay** (`src/modules/vnpay`, id `pp_vnpay_vnpay`): ký HMAC-SHA512 theo mẫu Node.js của VNPay, giờ Asia/Ho_Chi_Minh, hết hạn 15 phút, `vnp_Amount = tổng × 100`. `vnp_TxnRef` = ULID của cart + timestamp base36 (chỉ chữ và số), nên route verify/IPN tìm lại được cart. Bấm "Pay with VNPay" thì tạo lại session để URL luôn mới.
-  - `authorizePayment`: **cách A** gọi `querydr`; nếu VNPay không xác nhận được (ví dụ sandbox trả lỗi) thì **cách B** dùng kết quả đã kiểm tra chữ ký do route verify/IPN ghi vào `data` của payment session. Thành công thì trả `captured` (Medusa tự capture, Admin hiện "Paid"). Hoàn tiền là giả lập (chỉ log).
-  - `GET /store/vnpay/verify` (kiểm tra chữ ký + số tiền, không tạo đơn) và `GET /hooks/vnpay/ipn` (trả `RspCode` 00/01/02/04/97/99, idempotent, tự `completeCartWorkflow` nếu khách đóng trình duyệt). Query validate bằng zod, chỉ nhận tham số `vnp_*`.
-  - `/checkout/result`: kiểm tra → hoàn tất giỏ → trang xác nhận. Thất bại hoặc huỷ thì không tạo đơn, giỏ giữ nguyên, có nút "Try VNPay again" và "Pay on delivery instead".
-  - Provider chỉ được nạp khi `.env` có `VNP_TMN_CODE` + `VNP_HASH_SECRET`; chạy lại `seed.ts` để gắn vào region. **Hiện `.env` chưa có key nên region `pawl-dev` mới chỉ có COD.**
+- **Thanh toán online = chuyển khoản QR, GIẢ LẬP** (`src/modules/qr-payment`, id `pp_qr_qr`). Ban đầu nhóm làm VNPay sandbox; vì phạm vi đồ án chỉ cần demo nên đã **thay hẳn** bằng luồng QR giả lập (bỏ module VNPay, route verify/IPN và biến `VNP_*`). Trên web, luồng này trông như thanh toán thật:
+  - Bước Review → "Continue to payment" → backend tạo phiên mới: nội dung chuyển khoản `PAWL` + 8 ký tự (bỏ ký tự dễ nhầm 0/O, 1/I), số tiền, hạn 15 phút.
+  - `/checkout/pay`: ảnh QR tĩnh của nhóm (`materials/Landing Page/QR code.png`), số tiền và nội dung chuyển khoản có nút copy, đồng hồ đếm ngược, 3 bước hướng dẫn, nút "I have completed the transfer" và "Change payment method". QR hết hạn thì mờ đi, có nút "Get a new QR code".
+  - `POST /store/qr-payments/confirm` **đóng vai ngân hàng báo đã nhận tiền**: không kiểm tra giao dịch thật; kiểm tra phiên khớp `cart_id` + nội dung chuyển khoản và còn hạn, ghi `paid_at`/`paid_amount` vào payment session rồi chạy `completeCartWorkflow`. Idempotent (gọi lại trả đúng đơn cũ). Body validate bằng zod (strict). Màn hình "Verifying your payment…" chờ khoảng 2,5 giây cho giống thật.
+  - `authorizePayment` chỉ chấp nhận phiên đã ghi nhận trả đủ tiền, trả `captured` (Admin hiện "Paid"). Chưa trả mà gọi `cart.complete` thì bị từ chối. Hoàn tiền giả lập (chỉ log). Mọi bước đều ghi log (mã, số tiền, thời gian).
 - **`/orders/:id/confirmed`:** mã đơn, trạng thái thanh toán, địa chỉ, phương thức giao, phương thức thanh toán, sản phẩm, tổng; Guest thấy gợi ý "Create an account with this email".
 - **Subscriber:** `order.placed` gửi email xác nhận qua Notification provider `local` (in ra console). Đã có sẵn subscriber reset mật khẩu và `AuthProvider` (dùng cho M4).
 - **Kiểm thử:**
-  - 17 unit test (`npm run test:unit`): ký/kiểm tra chữ ký, URL thanh toán, route verify + IPN (chữ ký sai, số tiền sai, idempotent), validate query chạy qua middleware thật của Medusa.
-  - Store API: đơn COD có `PAWL10` (tổng đúng 154.200₫).
-  - Giả lập VNPay trên backend tạm (key giả, ký kết quả như VNPay): thành công → đơn `captured`; khách huỷ (mã 24) → không tạo đơn, giỏ còn; chữ ký bị sửa → `valid: false`; IPN tới trước → IPN tạo đơn, verify trả `order_id`; IPN lần 2 → `02`. Sau khi thử đã gỡ VNPay khỏi region.
-  - Chrome headless ở 1280px và 375px: COD, VNPay thành công, VNPay huỷ → chuyển COD; không tràn ngang, không lỗi console.
+  - 12 unit test (`npm run test:unit`): mã chuyển khoản, hạn 15 phút, chỉ authorize khi trả đủ; route confirm (thành công, idempotent, sai mã, hết hạn, lỗi tạo đơn) và validate body chạy qua middleware thật của Medusa.
+  - Store API: đơn COD có `PAWL10` (tổng đúng 154.200₫); đơn QR: chưa confirm thì `cart.complete` bị từ chối, confirm → đơn `captured`, confirm lần 2 → cùng đơn, body có trường lạ → 400.
+  - Chrome headless ở 1280px và 375px: COD, QR thành công, QR → đổi sang COD; ảnh QR tải được, không tràn ngang, không lỗi console.
   - Typecheck, lint, build của 2 app không lỗi.
-- **Lỗi tìm ra khi chạy thật:** validator của Medusa tự gọi `.strict()` trên schema dạng object nên `.catchall()` mất tác dụng và mọi request VNPay bị trả 400. Đã đổi sang `z.record` và thêm test chạy qua middleware thật.
-- **Còn lại:** chạy thử với key sandbox thật + thẻ NCB (người dùng đăng ký VNPay sandbox); IPN thật cần URL public (M5 hoặc tunnel). Link Sign in/Sign up/Account trên header và link chính sách ở bước Review sẽ có trang ở M4–M5.
+- **Còn lại:** Link Sign in/Sign up/Account trên header và link chính sách ở bước Review sẽ có trang ở M4–M5. Trạng thái QR hết hạn mới kiểm tra bằng unit test, chưa chạy thử trên trình duyệt (cần chờ 15 phút).
 
 ### 1.6 Thay đổi so với kế hoạch ban đầu (15/10)
 
@@ -114,7 +112,7 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 | Nút bấm màu `#F18926` chữ trắng | Nút dùng `#B8590B` (cùng tông cam, đậm hơn); `#F18926` giữ cho tiêu đề, badge, điểm nhấn | Chữ trắng trên `#F18926` chỉ đạt tương phản 2,5:1; `#B8590B` đạt 4,8:1 (chuẩn WCAG AA) |
 | Mục "My Pet" trên menu (mockup) | Thay bằng nút chuyển Mèo / Chó | Hồ sơ pet thuộc Phase 2 |
 | Giao diện và dữ liệu mẫu tiếng Việt | **Tiếng Anh** (giá VND, địa chỉ Việt Nam) | Bài nộp yêu cầu tiếng Anh |
-| Provider VNPay luôn được đăng ký | Chỉ đăng ký khi `.env` có key VNPay | Máy chưa có key vẫn chạy được với COD; thiếu key thì báo lỗi rõ ràng thay vì im lặng |
+| Thanh toán online qua VNPay sandbox | **Chuyển khoản QR giả lập** (ảnh QR tĩnh, xác nhận giả lập) | Phạm vi đồ án chỉ cần demo; không phụ thuộc tài khoản merchant, không cần URL public cho IPN; tài liệu ghi rõ là giả lập |
 
 ---
 
@@ -126,7 +124,7 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 | Customer | Đã đăng nhập | Như Guest + tài khoản, sổ địa chỉ, lịch sử đơn, mua lại | Hồ sơ pet, gợi ý cá nhân hoá, đặt định kỳ |
 | Admin | Nhân viên cửa hàng | Dùng **Medusa Admin có sẵn** (`/app`): sản phẩm, ảnh, biến thể, giá, tồn kho, đơn, khách, khuyến mãi | Widget thuộc tính dinh dưỡng, trang Subscriptions, Analytics |
 
-Guest và Customer là cùng một người ở hai trạng thái trên cùng một storefront. Trong sơ đồ use case, Customer kế thừa Guest; VNPay, dịch vụ email (và Phase 2: GHN, Gemini) là actor phụ.
+Guest và Customer là cùng một người ở hai trạng thái trên cùng một storefront. Trong sơ đồ use case, Customer kế thừa Guest; ngân hàng (giả lập), dịch vụ email (và Phase 2: GHN, Gemini) là actor phụ.
 
 Không thêm actor khác: không Shipper (đơn vị vận chuyển lo), không Seller (B2C một người bán), không Bác sĩ thú y.
 
@@ -142,7 +140,7 @@ Không thêm actor khác: không Shipper (đơn vị vận chuyển lo), không 
 | Chi tiết sản phẩm, biến thể (400g / 1.5kg…), giá VND, còn/hết hàng | Store API, `calculated_price` theo region VN |
 | Giỏ hàng, sửa số lượng, xoá, mã giảm giá | Cart + Promotion có sẵn; `cart_id` lưu trong localStorage |
 | Checkout 1 trang, 5 bước | Liên hệ → địa chỉ → giao hàng → thanh toán → xác nhận |
-| Thanh toán **COD** + **VNPay sandbox** | COD: `pp_system_default`; VNPay: payment provider tự viết (redirect, return URL, IPN) |
+| Thanh toán **COD** + **chuyển khoản QR (giả lập)** | COD: `pp_system_default`; QR: payment provider tự viết `pp_qr_qr`, xác nhận thanh toán là giả lập |
 | Giao hàng: tiêu chuẩn 30.000₫, nhanh 45.000₫ | Provider fulfillment manual có sẵn |
 | Đăng ký, đăng nhập, đăng xuất, quên mật khẩu | Auth emailpass của Medusa; email in ra console |
 | Tài khoản: tổng quan, thông tin, sổ địa chỉ, đơn hàng | Store API customer/order |
@@ -175,18 +173,18 @@ Phase 1 đã chừa đường cho Phase 2: thuộc tính lọc lưu bằng tag t
  Nhân viên ───────────► Medusa Admin  /app ──────────────┤
                                                          ▼
                                    Medusa v2 backend  :9000
-                                   (API, workflow, provider VNPay)
-                                     │            │             │
-                                     ▼            ▼             ▼
-                           Supabase Postgres  Supabase Storage  VNPay sandbox
-                           (Session pooler,   (S3 API, bucket   (redirect, IPN,
-                            SSL)               public pawl-media) querydr)
+                                   (API, workflow, provider QR giả lập)
+                                     │            │
+                                     ▼            ▼
+                           Supabase Postgres  Supabase Storage
+                           (Session pooler,   (S3 API, bucket
+                            SSL)               public pawl-media)
 ```
 
 - Storefront và Admin **chỉ nói chuyện với Medusa**. Storefront không gọi Supabase trực tiếp, không dùng `@supabase/supabase-js`.
 - Supabase **chỉ** là nơi chứa database Postgres và ảnh. Không dùng Supabase Auth, Data API (đã tắt), anon key hay `service_role` key. Bảng do migration của Medusa tạo ra.
-- Mọi khoá bí mật (DB, S3, VNPay; Phase 2: GHN, Gemini) chỉ nằm ở `apps/backend/.env`. Storefront chỉ có `VITE_MEDUSA_URL` và publishable key của Medusa.
-- Khi thanh toán VNPay, trình duyệt chuyển sang trang VNPay rồi quay về `/checkout/result`; backend kiểm tra chữ ký và xác nhận giao dịch ở phía server trước khi tạo đơn.
+- Mọi khoá bí mật (DB, S3; Phase 2: GHN, Gemini) chỉ nằm ở `apps/backend/.env`. Storefront chỉ có `VITE_MEDUSA_URL` và publishable key của Medusa.
+- Thanh toán online là **giả lập**: không có ngân hàng hay cổng thanh toán bên ngoài. Storefront hiện QR tĩnh; route `POST /store/qr-payments/confirm` thay cho thông báo của ngân hàng, ghi nhận đã trả rồi mới tạo đơn.
 
 | Thành phần | Dev | Demo / deploy | Ghi chú |
 | --- | --- | --- | --- |
@@ -195,7 +193,7 @@ Phase 1 đã chừa đường cho Phase 2: thuộc tính lọc lưu bằng tag t
 | Redis | Không dùng (Medusa dùng bản in-memory) | Thêm Upstash nếu cần (job Phase 2, nhiều instance) | |
 | Backend + Admin | `npm run dev` | Railway / Render / VPS (chọn ở M5) | Cookie session cần xem lại khi 2 app khác domain |
 | Storefront | `npm run dev` | Vercel / Netlify (SPA tĩnh) | Rewrite mọi route về `index.html` |
-| VNPay | Sandbox | Sandbox | IPN cần URL public (deploy hoặc tunnel) |
+| Thanh toán online | QR giả lập | QR giả lập | Không cần tài khoản merchant hay URL public |
 | Email | Notification provider `local` (in ra console) | Như dev, hoặc SendGrid/Resend ở Phase 2 | |
 
 Chi phí gói Free của Supabase và hosting đưa vào phần ước tính chi phí của Part 2.4.
@@ -209,7 +207,7 @@ Chi phí gói Free của Supabase và hosting đưa vào phần ước tính chi
 | Routing / data / form | React Router 7 (thư viện), TanStack Query 5, react-hook-form 7 + zod 4 |
 | Styling | Tailwind CSS v4 (token màu/font trong `globals.css`) |
 | Gọi API | `@medusajs/js-sdk` (auth kiểu session) |
-| Thanh toán | COD + VNPay sandbox |
+| Thanh toán | COD + chuyển khoản QR (giả lập) |
 | Thiết kế | Màu `#F18926` (nhấn), `#395686` (nền phụ), `#413333` (chữ), `#F4EBDD` (nền); font Pacifico (logo/tiêu đề), Inter (nội dung) |
 
 ---
@@ -267,16 +265,17 @@ Gallery, tên, thương hiệu, giá, chọn biến thể, số lượng, còn/h
   1. **Liên hệ:** email, SĐT (regex SĐT VN). Customer tự điền.
   2. **Địa chỉ:** họ tên, SĐT, tỉnh/thành (34 đơn vị), phường/xã, số nhà và đường. Map vào Medusa: `province` = tỉnh/thành, `city` = phường/xã, `address_1` = số nhà và đường, `country_code` = `vn`.
   3. **Giao hàng:** chọn 1 trong 2 phương thức giá cố định.
-  4. **Thanh toán:** COD hoặc VNPay.
+  4. **Thanh toán:** COD hoặc chuyển khoản QR (giả lập).
   5. **Xác nhận:** tóm tắt, tick đồng ý Điều khoản và Chính sách bảo mật, đặt hàng.
-- COD: hoàn tất cart → `/orders/:id/confirmed`. VNPay: chuyển sang trang VNPay → `/checkout/result` → kiểm tra chữ ký → hoàn tất cart. Thanh toán thất bại thì không tạo đơn, giỏ vẫn còn, có nút "Thử lại" hoặc "Chọn COD".
+- COD: hoàn tất cart → `/orders/:id/confirmed`. QR: `/checkout/pay` → khách bấm đã chuyển khoản → xác nhận giả lập → tạo đơn → `/orders/:id/confirmed`. Chưa xác nhận hoặc QR hết hạn thì không tạo đơn, giỏ vẫn còn; có thể lấy QR mới hoặc đổi sang COD.
 
-### 6.6 VNPay sandbox
-- Payment Module Provider tự viết (`pp_vnpay_vnpay`): tạo URL thanh toán ký HMAC-SHA512 (tham số sắp xếp alphabet, giờ Asia/Ho_Chi_Minh, hết hạn 15 phút, `vnp_Amount = số tiền × 100`).
-- `authorizePayment` xác nhận ở server: ưu tiên gọi API `querydr` của VNPay; nếu sandbox không hỗ trợ thì dùng kết quả do route verify/IPN ghi lại sau khi đã kiểm tra chữ ký.
-- Route `GET /store/vnpay/verify` (kiểm tra chữ ký URL trả về, không tạo đơn) và `GET /hooks/vnpay/ipn` (VNPay gọi bằng GET; kiểm tra chữ ký, số tiền, idempotent, trả `RspCode`; tự hoàn tất cart nếu khách đóng trình duyệt).
-- Hoàn tiền ở Phase 1 là giả lập (chỉ ghi log). Mọi giao dịch được ghi log (mã giao dịch, số tiền, mã phản hồi, thời gian).
-- Thẻ test: NCB `9704198526191432198`, `NGUYEN VAN A`, `07/15`, OTP `123456` (kiểm tra lại trên trang sandbox VNPay).
+### 6.6 Thanh toán online (chuyển khoản QR, giả lập)
+- **Đây là thanh toán giả lập**, chỉ dùng cho demo đồ án. Không gọi ngân hàng hay cổng thanh toán nào, không đối soát tiền thật. Khi demo không chuyển tiền thật.
+- Payment Module Provider tự viết `pp_qr_qr`: mỗi phiên có nội dung chuyển khoản `PAWLxxxxxxxx`, số tiền VND, hạn 15 phút; đổi tổng tiền thì phát hành mã mới.
+- Storefront `/checkout/pay` hiện ảnh QR tĩnh, số tiền, nội dung chuyển khoản, đồng hồ đếm ngược.
+- `POST /store/qr-payments/confirm { cart_id, reference }` giả lập thông báo "đã nhận tiền" của ngân hàng: kiểm tra phiên khớp và còn hạn → ghi nhận đã trả đủ → tạo đơn (idempotent).
+- `authorizePayment` chỉ chấp nhận phiên đã trả đủ, trả `captured`. Hoàn tiền giả lập (chỉ log). Mọi bước đều ghi log.
+- Nâng cấp lên thanh toán thật: thay route confirm bằng webhook có chữ ký của ngân hàng/cổng thanh toán (VietQR/PayOS, VNPay, MoMo); storefront gần như giữ nguyên.
 
 ### 6.7 Tài khoản
 - Đăng ký (email, mật khẩu ≥ 8 ký tự, họ tên, SĐT, checkbox đồng ý xử lý dữ liệu cá nhân); đăng nhập có `?redirect=`; quên mật khẩu theo luồng reset của Medusa (link in ra console).
@@ -303,8 +302,8 @@ pawl/
     │   ├── medusa-config.ts
     │   ├── integration-tests/
     │   └── src/
-    │       ├── api/              # store/vnpay/verify, hooks/vnpay/ipn, middlewares.ts
-    │       ├── modules/vnpay/    # payment provider + lib/sign.ts, build-url.ts
+    │       ├── api/              # store/qr-payments/confirm, middlewares.ts
+    │       ├── modules/qr-payment/  # payment provider QR giả lập + lib/session.ts, confirm.ts
     │       ├── subscribers/      # order-placed, reset password
     │       ├── scripts/          # check-db.mjs, seed.ts, seed-catalog.ts
     │       ├── admin/ jobs/ links/ workflows/   # dùng ở Phase 2
@@ -366,13 +365,13 @@ Cách làm: "tạo đơn tự động + thanh toán từng kỳ", không trừ t
 1. Đơn đầu: subscriber `order.placed` thấy dòng có `metadata.subscription` → tạo Subscription.
 2. T−5 ngày: email nhắc, kèm link sửa/bỏ qua.
 3. Trước hạn chốt T−3: khách được bỏ qua, tạm dừng, đổi sản phẩm/tần suất/địa chỉ.
-4. Tại hạn chốt: job hằng ngày tạo đơn kỳ mới (giá hiện hành trừ % giảm). COD xử lý ngay; VNPay gửi link thanh toán, hạn 48 giờ.
+4. Tại hạn chốt: job hằng ngày tạo đơn kỳ mới (giá hiện hành trừ % giảm). COD xử lý ngay; thanh toán online gửi link trang QR, hạn 48 giờ.
 5. Quá hạn chưa thanh toán thì kỳ `failed`; 2 kỳ lỗi liên tiếp thì tự tạm dừng gói.
 
 | Cách thanh toán định kỳ | Độ khó | Dùng khi |
 | --- | --- | --- |
 | COD mỗi kỳ | Thấp | Mặc định |
-| Link VNPay mỗi kỳ | Thấp (dùng lại provider) | Phase 2 |
+| Link thanh toán QR mỗi kỳ | Thấp (dùng lại provider) | Phase 2 |
 | Token thẻ / trừ tự động | Cao, cần hợp đồng merchant | Roadmap, ghi vào báo cáo |
 
 Khi có job chạy định kỳ và deploy nhiều instance thì cân nhắc thêm Redis (Upstash).
@@ -386,9 +385,9 @@ Khi có job chạy định kỳ và deploy nhiều instance thì cân nhắc th�
 | Xác thực | Auth emailpass của Medusa (mật khẩu băm); session cookie httpOnly thay vì token trong localStorage |
 | Kiểm soát truy cập | Store API chỉ cho chủ đơn xem đơn; route custom tự kiểm tra chủ sở hữu; `STORE_CORS`/`ADMIN_CORS`/`AUTH_CORS` chỉ mở đúng origin; Admin dùng auth admin có sẵn |
 | Bí mật | Secret chỉ ở `apps/backend/.env`, không commit; không dùng anon/service_role key của Supabase; biến `VITE_*` chỉ chứa giá trị công khai; DB luôn qua SSL; `JWT_SECRET`/`COOKIE_SECRET` sinh ngẫu nhiên; không lưu số thẻ |
-| Toàn vẹn | Kiểm tra `vnp_SecureHash` (HMAC-SHA512, so sánh không phân biệt hoa thường) ở cả return URL và IPN; đối chiếu số tiền; IPN idempotent; validate input route custom bằng zod |
+| Toàn vẹn | Chỉ tạo đơn khi phiên thanh toán đã ghi nhận trả đủ đúng số tiền; phiên phải khớp `cart_id` + nội dung chuyển khoản và còn hạn; xác nhận idempotent; validate input route custom bằng zod (strict). Xác nhận thanh toán là giả lập: bản thật cần webhook có chữ ký của ngân hàng |
 | Sẵn sàng | Backup tự động của Supabase; kiểm tra project chưa bị tạm dừng trước demo; React Query cache để giảm tải |
-| Chống chối bỏ | Log giao dịch VNPay (mã, số tiền, mã phản hồi, thời gian); không log mật khẩu, token, connection string |
+| Chống chối bỏ | Log giao dịch thanh toán (mã chuyển khoản, số tiền, kết quả, thời gian); không log mật khẩu, token, connection string |
 | Dữ liệu công khai | Supabase Data API đã tắt; bucket `pawl-media` public nên chỉ chứa ảnh công khai |
 
 Pháp lý cần thể hiện trên website và trong báo cáo:
@@ -424,7 +423,7 @@ BEP (số đơn/tháng) = chi phí cố định/tháng ÷ lãi gộp trung bình
 
 | Vai | Phụ trách chính |
 | --- | --- |
-| BE | Supabase, Medusa, seed (M0–M1), VNPay (M3), deploy `pawl-demo` (M5); Phase 2: pet, subscription, GHN |
+| BE | Supabase, Medusa, seed (M0–M1), thanh toán QR giả lập (M3), deploy `pawl-demo` (M5); Phase 2: pet, subscription, GHN |
 | FE 1 | Layout, trang chủ, danh sách, chi tiết (M2), giỏ, checkout (M3) |
 | FE 2 | Auth, tài khoản (M4), trang tĩnh, SEO, responsive (M5) |
 | BA / Design | Báo cáo Part 1–2, dữ liệu sản phẩm + ảnh, nội dung chính sách, test, slide, video |
@@ -441,11 +440,11 @@ Báo cáo Part 1–2 (thị trường, SWOT, BMC, doanh thu, BEP, marketing, KPI
 | 3.2 Nguyên tắc thiết kế | 0.5 | Mobile-first, checkout accordion, bộ màu/font thống nhất, accessibility cơ bản | 1 |
 | 4.1 Product management | | Medusa Admin, ảnh trên Supabase Storage | 1 |
 | 4.1 Shopping cart | | `/cart` + mini-cart, mã giảm giá | 1 |
-| 4.1 Payment (real/simulated) | | COD + VNPay sandbox | 1 |
+| 4.1 Payment (real/simulated) | | COD + chuyển khoản QR **giả lập** | 1 |
 | 4.1 Order management | | Medusa Admin Orders + `/account/orders` | 1 |
 | 4.1 Delivery options | | 2 phương thức giá cố định; GHN ở Phase 2 | 1 |
 | 4.1 Security | | Mục 10 | 1 |
-| 4.1 Framework, custom feature, hosting | 1.5 (cả 4.1) | Medusa v2 + Supabase; custom: VNPay provider (Phase 1), pet/subscription/gợi ý/chatbot (Phase 2) | 1 + 2 |
+| 4.1 Framework, custom feature, hosting | 1.5 (cả 4.1) | Medusa v2 + Supabase; custom: payment provider QR giả lập (Phase 1), pet/subscription/gợi ý/chatbot (Phase 2) | 1 + 2 |
 | 4.2 Source + DB + hướng dẫn cài | 0.5 | `README.md`, `docs/`, script `check-db`/`seed` | 1 |
 | 5 Advanced features | 1.0 | Gợi ý theo pet, đặt định kỳ, chatbot Gemini, analytics | **2** |
 | 2.1–2.2 Doanh thu, giá, BEP | 2.0 | Mục 11 (cần số liệu của nhóm) | — |

@@ -1,6 +1,6 @@
 import type { HttpTypes } from '@medusajs/types'
 
-export const VNPAY_PROVIDER = 'pp_vnpay_vnpay'
+export const QR_PROVIDER = 'pp_qr_qr'
 export const COD_PROVIDER = 'pp_system_default'
 
 export type StepKey = 'contact' | 'address' | 'shipping' | 'payment' | 'review'
@@ -30,8 +30,11 @@ export function firstIncompleteStep(cart: HttpTypes.StoreCart): StepKey {
   return (STEPS.find((s) => s !== 'review' && !done[s]) ?? 'review') as StepKey
 }
 
-export function vnpayPaymentUrl(cart: HttpTypes.StoreCart): string | undefined {
-  const session = cart.payment_collection?.payment_sessions?.find((s) => s.provider_id === VNPAY_PROVIDER)
-  const url = session?.data?.payment_url
-  return typeof url === 'string' ? url : undefined
+/** The bank transfer waiting for payment (see apps/backend/src/modules/qr-payment) */
+export type QrPayment = { reference: string; amount: number; expiresAt: string }
+
+export function qrPayment(cart: HttpTypes.StoreCart | null): QrPayment | undefined {
+  const data = cart?.payment_collection?.payment_sessions?.find((s) => s.provider_id === QR_PROVIDER)?.data
+  if (typeof data?.reference !== 'string' || typeof data.expires_at !== 'string') return undefined
+  return { reference: data.reference, amount: Number(data.amount), expiresAt: data.expires_at }
 }

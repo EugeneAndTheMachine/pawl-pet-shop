@@ -73,6 +73,12 @@ export const ShieldIcon = (p: IconProps) => (
 export const CheckIcon = (p: IconProps) => (
   <Svg {...p}><path d="m5 12 5 5L20 7" /></Svg>
 )
+export const CopyIcon = (p: IconProps) => (
+  <Svg {...p}><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V6a2 2 0 0 1 2-2h9" /></Svg>
+)
+export const ClockIcon = (p: IconProps) => (
+  <Svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></Svg>
+)
 export const AlertIcon = (p: IconProps) => (
   <Svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16.5v.5" /></Svg>
 )

@@ -101,7 +101,7 @@ export default function CartPage() {
                 <TruckIcon className="text-lg text-brand-strong" /> Standard delivery ₫30,000 · Express ₫45,000
               </li>
               <li className="flex items-center gap-2">
-                <ShieldIcon className="text-lg text-brand-strong" /> Secure checkout, pay on delivery or by VNPay
+                <ShieldIcon className="text-lg text-brand-strong" /> Secure checkout, pay on delivery or by QR bank transfer
               </li>
             </ul>
           </aside>

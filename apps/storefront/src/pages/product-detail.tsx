@@ -144,7 +144,7 @@ function ProductDetail({ product }: { product: HttpTypes.StoreProduct }) {
                 <TruckIcon className="shrink-0 text-xl text-brand-strong" /> Delivered in 2–4 days, same day in the inner city
               </li>
               <li className="flex items-center gap-2">
-                <WalletIcon className="shrink-0 text-xl text-brand-strong" /> Cash on delivery or VNPay
+                <WalletIcon className="shrink-0 text-xl text-brand-strong" /> Cash on delivery or QR bank transfer
               </li>
               <li className="flex items-center gap-2">
                 <RefreshIcon className="shrink-0 text-xl text-brand-strong" /> 7-day returns

@@ -1,18 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
-import { finishVnpayPayment } from './api'
+import { useEffect, useState } from 'react'
 
-export const checkoutKeys = {
-  vnpayResult: (search: string) => ['vnpay-result', search] as const,
-}
-
-/** Runs once per return URL: the query cache also stops StrictMode or a re-render from completing the cart twice */
-export function useVnpayResult(search: string, enabled: boolean) {
-  return useQuery({
-    queryKey: checkoutKeys.vnpayResult(search),
-    queryFn: () => finishVnpayPayment(new URLSearchParams(search)),
-    enabled,
-    staleTime: Number.POSITIVE_INFINITY,
-    gcTime: Number.POSITIVE_INFINITY,
-    retry: false,
-  })
+/** Milliseconds left until the deadline, updated every second */
+export function useCountdown(deadline: string | undefined): number {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+  return deadline ? Math.max(0, new Date(deadline).getTime() - now) : 0
 }

@@ -62,7 +62,7 @@ Mở http://localhost:5173.
 
 Hai script seed chạy lại nhiều lần được: thứ gì đã có thì bỏ qua, không tạo trùng và không ghi đè chỉnh sửa trong Admin.
 
-- `seed.ts`: store "Pawl" chỉ dùng VND; region "Vietnam" thanh toán COD (tự thêm VNPay khi `.env` có key VNPay); giá **đã gồm VAT** (tax-inclusive, thuế suất mặc định 10%, đơn giản hoá cho demo); kho "HCMC Warehouse"; 2 phương thức giao hàng: tiêu chuẩn 30.000₫, nhanh 45.000₫; mã giảm giá demo **`PAWL10`** (giảm 10% cả đơn). Cuối script in ra publishable key để chép vào `apps/storefront/.env`.
+- `seed.ts`: store "Pawl" chỉ dùng VND; region "Vietnam" thanh toán COD + chuyển khoản QR (giả lập); giá **đã gồm VAT** (tax-inclusive, thuế suất mặc định 10%, đơn giản hoá cho demo); kho "HCMC Warehouse"; 2 phương thức giao hàng: tiêu chuẩn 30.000₫, nhanh 45.000₫; mã giảm giá demo **`PAWL10`** (giảm 10% cả đơn). Cuối script in ra publishable key để chép vào `apps/storefront/.env`.
 - `seed-catalog.ts`: cây danh mục Cats/Dogs, 36 sản phẩm (1–3 biến thể mỗi sản phẩm), collection "Best Sellers", tồn kho tại "HCMC Warehouse". Thuộc tính lọc lưu bằng tag dạng `prefix:value` (`species:`, `life:`, `health:`, `free:`, `form:`); `product.metadata` có `brand`, `ingredients`, `kcal_per_kg`, `feeding_guide`.
 - Nội dung hiển thị (tên sản phẩm, danh mục, phương thức giao hàng, giao diện storefront) bằng **tiếng Anh**; tỉnh/thành dùng tên Việt Nam không dấu.
 - Tên thương hiệu là thật, nhưng **mô tả, thành phần, kcal và hướng dẫn cho ăn do nhóm tự soạn cho demo**, không phải thông số chính thức của nhà sản xuất. Ảnh là placeholder (placehold.co); ảnh thật upload qua Admin.
@@ -75,31 +75,37 @@ _(Bổ sung ở M1/M5.)_
 
 ## Thanh toán
 
-Storefront có 2 phương thức: **COD** (`pp_system_default`, luôn có) và **VNPay sandbox** (`pp_vnpay_vnpay`, chỉ bật khi có key).
+Storefront có 2 phương thức:
 
-### Bật VNPay sandbox
+| Phương thức | Provider | Ghi chú |
+|---|---|---|
+| Thanh toán khi nhận hàng (COD) | `pp_system_default` (có sẵn trong Medusa) | Đơn ở trạng thái "authorized", thu tiền khi giao |
+| Chuyển khoản qua mã QR | `pp_qr_qr` (`apps/backend/src/modules/qr-payment`) | **Giả lập**, xem bên dưới |
 
-1. Đăng ký merchant sandbox tại trang đăng ký sandbox của VNPay, nhận `vnp_TmnCode` và `vnp_HashSecret` qua email.
-2. Điền vào `apps/backend/.env`: `VNP_TMN_CODE`, `VNP_HASH_SECRET` (các biến `VNP_PAY_URL`, `VNP_API_URL`, `VNP_RETURN_URL` để mặc định khi chạy local).
-3. Khởi động lại backend rồi chạy lại `npx medusa exec ./src/scripts/seed.ts` để gắn VNPay vào region "Vietnam".
+### Thanh toán online là giả lập
 
-Thiếu key thì backend không nạp provider VNPay và storefront chỉ hiện COD. Nếu region đã gắn VNPay nhưng máy bạn thiếu key, chọn VNPay sẽ báo "not available" thay vì im lặng.
+Vì đây là đồ án môn học, Pawl **không kết nối ngân hàng hay cổng thanh toán thật**. Trên website, luồng chuyển khoản QR trông như thanh toán thật, nhưng mọi bước xác nhận đều do hệ thống tự giả lập:
 
-Luồng: Review → chuyển sang trang VNPay → VNPay trả về `/checkout/result` → backend kiểm tra chữ ký (`GET /store/vnpay/verify`) → storefront hoàn tất giỏ → `/orders/:id/confirmed`. Khi tạo đơn, provider hỏi lại VNPay bằng API `querydr`; nếu sandbox không trả lời được thì dùng kết quả đã kiểm tra chữ ký do route verify/IPN ghi lại. IPN (`GET /hooks/vnpay/ipn`) chỉ chạy khi backend có URL public (deploy hoặc tunnel như cloudflared/ngrok); khi dev không có IPN thì luồng return URL vẫn đủ để demo.
+1. Bước Review chọn "Bank transfer (QR)" → backend tạo phiên thanh toán gồm nội dung chuyển khoản `PAWLxxxxxxxx`, số tiền và hạn 15 phút.
+2. Trang `/checkout/pay` hiện **ảnh QR tĩnh** (`apps/storefront/src/assets/images/payment-qr.png`, lấy từ `materials/`), số tiền, nội dung chuyển khoản kèm nút copy, và đồng hồ đếm ngược.
+3. Khách bấm "I have completed the transfer" → storefront gọi `POST /store/qr-payments/confirm`. Route này **đóng vai ngân hàng báo đã nhận tiền**: không kiểm tra giao dịch thật nào, chỉ ghi `paid_at`/`paid_amount` vào payment session rồi tạo đơn. Màn hình "Verifying your payment…" chờ thêm khoảng 2,5 giây để giống thời gian ngân hàng phản hồi.
+4. Provider chỉ cho phép tạo đơn khi phiên đã được đánh dấu trả đủ tiền. Đơn được ghi nhận "captured" (Admin hiện "Paid"). Hoàn tiền cũng là giả lập (chỉ ghi log).
 
-### Thẻ test VNPay sandbox
+Ràng buộc phía server: phiên phải tồn tại và khớp `cart_id` + nội dung chuyển khoản, còn hạn, chưa có đơn (gọi lại thì trả về đúng đơn cũ); body được validate bằng zod. QR hết hạn thì bấm "Get a new QR code" để tạo phiên mới. Bấm "Change payment method" để quay về chọn COD.
 
-| Ngân hàng | Số thẻ | Tên chủ thẻ | Ngày phát hành | OTP |
-|---|---|---|---|---|
-| NCB | `9704198526191432198` | `NGUYEN VAN A` | `07/15` | `123456` |
+> Ảnh QR là ảnh tĩnh do nhóm cung cấp. Website không đọc hay đối soát tiền thật chuyển vào tài khoản trong QR; khi demo **không cần và không nên chuyển tiền thật**.
 
-Thông tin thẻ test có thể thay đổi, kiểm tra lại trên trang tài liệu sandbox của VNPay.
+Muốn nâng cấp thành thanh toán thật thì thay route confirm bằng webhook có chữ ký của ngân hàng hoặc cổng thanh toán (VietQR/PayOS, VNPay, MoMo…). Storefront gần như không phải sửa.
+
+### Mã giảm giá demo
+
+`PAWL10`: giảm 10% cả đơn (tạo bởi `seed.ts`).
 
 ### Kiểm thử
 
 ```bash
 cd apps/backend
-npm run test:unit    # ký/kiểm tra chữ ký VNPay, route verify + IPN, validate query
+npm run test:unit    # provider QR (phiên, hạn, chỉ nhận khi trả đủ) + route confirm (idempotent, hết hạn, sai mã, validate body)
 ```
 
 ## Tài liệu khác

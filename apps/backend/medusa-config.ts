@@ -28,24 +28,15 @@ const fileProvider = process.env.S3_ACCESS_KEY_ID
     }
   : { resolve: "@medusajs/medusa/file-local", id: "local" }
 
-// VNPay is registered only when its sandbox credentials exist; COD (pp_system_default) is always available.
-// Provider id: pp_vnpay_vnpay. Re-run seed.ts after adding the credentials to enable it on the region.
-const vnpayConfigured = Boolean(process.env.VNP_TMN_CODE && process.env.VNP_HASH_SECRET)
-const paymentProviders = vnpayConfigured
-  ? [
-      {
-        resolve: "./src/modules/vnpay",
-        id: "vnpay",
-        options: {
-          tmnCode: process.env.VNP_TMN_CODE,
-          hashSecret: process.env.VNP_HASH_SECRET,
-          payUrl: process.env.VNP_PAY_URL ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
-          apiUrl: process.env.VNP_API_URL ?? "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction",
-          returnUrl: process.env.VNP_RETURN_URL ?? "http://localhost:5173/checkout/result",
-        },
-      },
-    ]
-  : []
+// Online payment is SIMULATED: a bank transfer by QR code confirmed by the storefront (no real gateway).
+// Provider id: pp_qr_qr. COD (pp_system_default) is built in.
+const paymentProviders = [
+  {
+    resolve: "./src/modules/qr-payment",
+    id: "qr",
+    options: { expiryMinutes: 15 },
+  },
+]
 
 module.exports = defineConfig({
   projectConfig: {

@@ -73,9 +73,9 @@ export function Footer() {
           </ul>
           <div className="mt-6">
             <h2 className="mb-2 font-semibold">We accept</h2>
-            <div className="flex gap-2 text-xs font-bold">
-              <span className="rounded-md border border-line bg-white px-2.5 py-1">Cash on delivery</span>
-              <span className="rounded-md border border-line bg-white px-2.5 py-1 text-accent">VNPAY</span>
+            <div className="flex flex-wrap gap-2 text-xs font-bold">
+              <span className="whitespace-nowrap rounded-md border border-line bg-white px-2.5 py-1">Cash on delivery</span>
+              <span className="whitespace-nowrap rounded-md border border-line bg-white px-2.5 py-1 text-accent">Bank transfer (QR)</span>
             </div>
           </div>
         </div>

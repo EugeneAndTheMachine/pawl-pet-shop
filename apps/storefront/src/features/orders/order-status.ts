@@ -44,7 +44,7 @@ export function fulfillmentStatus(order: Pick<HttpTypes.StoreOrder, 'fulfillment
 
 export function paymentMethodLabel(providerId: string | undefined | null): string {
   if (!providerId) return 'Not selected'
-  if (providerId.startsWith('pp_vnpay')) return 'VNPay'
+  if (providerId === 'pp_qr_qr') return 'Bank transfer (QR)'
   if (providerId === 'pp_system_default') return 'Cash on delivery (COD)'
   return providerId
 }

@@ -29,8 +29,8 @@ const SERVICE_ZONE_NAME = "Nationwide"
 const API_KEY_TITLE = "Pawl Storefront"
 const MANUAL_FULFILLMENT_PROVIDER = "manual_manual"
 const COD_PAYMENT_PROVIDER = "pp_system_default"
-// Added to the region automatically once the VNPay provider is registered (VNP_* env vars set)
-const VNPAY_PAYMENT_PROVIDER = "pp_vnpay_vnpay"
+// Simulated online payment: bank transfer by QR code (src/modules/qr-payment)
+const QR_PAYMENT_PROVIDER = "pp_qr_qr"
 
 const SHIPPING_OPTIONS = [
   { name: "Standard delivery (2–4 days)", code: "standard", amount: 30000, description: "Delivered within 2–4 working days." },
@@ -83,7 +83,7 @@ export default async function seed({ container }: ExecArgs) {
 
   // Region
   const paymentProviders = (await paymentModule.listPaymentProviders({ is_enabled: true })).map((p) => p.id)
-  const regionProviders = [COD_PAYMENT_PROVIDER, VNPAY_PAYMENT_PROVIDER].filter((id) => paymentProviders.includes(id))
+  const regionProviders = [COD_PAYMENT_PROVIDER, QR_PAYMENT_PROVIDER].filter((id) => paymentProviders.includes(id))
 
   let region = (await regionModule.listRegions({ currency_code: "vnd" }))[0]
   if (!region) {

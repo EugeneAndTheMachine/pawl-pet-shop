@@ -7,8 +7,8 @@ import { ShieldIcon } from '../../../components/ui/icons'
 import { formatVND } from '../../../lib/format'
 import { completeCart } from '../../cart/api'
 import { useCart } from '../../cart/use-cart'
-import { startVnpayPayment } from '../api'
-import { selectedProvider, VNPAY_PROVIDER } from '../checkout-utils'
+import { startQrPayment } from '../api'
+import { QR_PROVIDER, selectedProvider } from '../checkout-utils'
 
 const policyLink = 'font-semibold text-accent underline underline-offset-2 hover:text-accent-dark'
 
@@ -19,7 +19,7 @@ export function ReviewStep({ cart }: { cart: HttpTypes.StoreCart }) {
   const [showConsentError, setShowConsentError] = useState(false)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const isVnpay = selectedProvider(cart) === VNPAY_PROVIDER
+  const isQr = selectedProvider(cart) === QR_PROVIDER
 
   const placeOrder = async () => {
     if (!agreed) {
@@ -29,9 +29,10 @@ export function ReviewStep({ cart }: { cart: HttpTypes.StoreCart }) {
     setPending(true)
     setError(null)
     try {
-      if (isVnpay) {
-        // The order is created after VNPay sends the shopper back to /checkout/result
-        window.location.assign(await startVnpayPayment(cart))
+      if (isQr) {
+        // The order is created once the transfer is confirmed on the payment page
+        setCart(await startQrPayment(cart))
+        navigate('/checkout/pay')
         return
       }
       const result = await completeCart(cart.id)
@@ -43,7 +44,7 @@ export function ReviewStep({ cart }: { cart: HttpTypes.StoreCart }) {
       setCart(result.cart)
       setError(/inventory|stock/i.test(result.message) ? 'Some items are no longer in stock. Please update your cart.' : 'We could not place your order. Please check your details and try again.')
     } catch {
-      setError(isVnpay ? 'We could not connect to VNPay. Please try again or choose cash on delivery.' : 'We could not place your order. Please try again.')
+      setError(isQr ? 'We could not start the payment. Please try again or choose cash on delivery.' : 'We could not place your order. Please try again.')
     }
     setPending(false)
   }
@@ -53,7 +54,7 @@ export function ReviewStep({ cart }: { cart: HttpTypes.StoreCart }) {
       <FormError message={error} />
       <p className="text-sm text-ink-soft">
         Please check your details above. You will pay <strong className="text-ink">{formatVND(cart.total)}</strong>
-        {isVnpay ? ' on the VNPay page.' : ' in cash when the order arrives.'}
+        {isQr ? ' by bank transfer on the next page.' : ' in cash when the order arrives.'}
       </p>
       <CheckboxField
         checked={agreed}
@@ -77,11 +78,11 @@ export function ReviewStep({ cart }: { cart: HttpTypes.StoreCart }) {
         }
       />
       <Button size="lg" className="w-full sm:w-auto" onClick={placeOrder} loading={pending}>
-        {isVnpay ? 'Pay with VNPay' : 'Place order'}
+        {isQr ? 'Continue to payment' : 'Place order'}
       </Button>
       <p className="flex items-center gap-2 text-xs text-ink-soft">
         <ShieldIcon className="text-base text-success" />
-        {isVnpay ? 'Card details are entered on VNPay’s secure page. Pawl never sees or stores them.' : 'No payment is taken now.'}
+        {isQr ? 'You pay from your own banking app. Pawl never sees or stores your bank details.' : 'No payment is taken now.'}
       </p>
     </div>
   )

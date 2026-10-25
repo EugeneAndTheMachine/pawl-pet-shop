@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router'
 import { RootLayout } from '../components/layout/root-layout'
 import CartPage from '../pages/cart'
 import CheckoutPage from '../pages/checkout'
-import CheckoutResultPage from '../pages/checkout-result'
+import CheckoutPayPage from '../pages/checkout-pay'
 import HomePage from '../pages/home'
 import NotFoundPage from '../pages/not-found'
 import OrderConfirmedPage from '../pages/order-confirmed'
@@ -25,7 +25,7 @@ export const router = createBrowserRouter([
           { path: '/search', element: <ProductsPage /> },
           { path: '/cart', element: <CartPage /> },
           { path: '/checkout', element: <CheckoutPage /> },
-          { path: '/checkout/result', element: <CheckoutResultPage /> },
+          { path: '/checkout/pay', element: <CheckoutPayPage /> },
           { path: '/orders/:id/confirmed', element: <OrderConfirmedPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],

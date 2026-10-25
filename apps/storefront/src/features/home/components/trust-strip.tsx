@@ -2,7 +2,7 @@ import { RefreshIcon, ShieldIcon, TruckIcon, WalletIcon } from '../../../compone
 
 const ITEMS = [
   { icon: <TruckIcon />, title: 'Same-day delivery', text: 'Inner Ho Chi Minh City, from ₫30,000' },
-  { icon: <WalletIcon />, title: 'Cash on delivery or VNPay', text: 'Pay the way you prefer' },
+  { icon: <WalletIcon />, title: 'Cash on delivery or QR transfer', text: 'Pay the way you prefer' },
   { icon: <RefreshIcon />, title: '7-day returns', text: 'For damaged or wrong items' },
   { icon: <ShieldIcon />, title: '100% genuine', text: 'Clear ingredient lists' },
 ]

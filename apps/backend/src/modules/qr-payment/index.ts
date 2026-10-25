@@ -1,6 +1,6 @@
 import { ModuleProvider, Modules } from "@medusajs/framework/utils"
-import VnpayProviderService from "./service"
+import QrPaymentProviderService from "./service"
 
 export default ModuleProvider(Modules.PAYMENT, {
-  services: [VnpayProviderService],
+  services: [QrPaymentProviderService],
 })

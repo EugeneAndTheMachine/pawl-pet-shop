@@ -11,7 +11,7 @@ import { selectedProvider } from '../checkout-utils'
 
 const DESCRIPTIONS: Record<string, string> = {
   pp_system_default: 'Pay in cash when the courier delivers your order.',
-  pp_vnpay_vnpay: 'Pay online with an ATM card, QR code or internet banking. You will be redirected to VNPay.',
+  pp_qr_qr: 'Pay now by scanning a QR code with your banking app. Your order is confirmed as soon as the payment arrives.',
 }
 
 
