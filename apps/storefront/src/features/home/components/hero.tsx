@@ -10,7 +10,7 @@ export function Hero() {
         src={hero1920}
         srcSet={`${hero960} 960w, ${hero1920} 1920w`}
         sizes="100vw"
-        alt="Cô gái vừa mua sắm trên laptop vừa vuốt ve chú chó golden"
+        alt="A woman shopping on her laptop while petting her golden retriever"
         className="absolute inset-0 -z-10 size-full object-cover object-[70%_center]"
         fetchPriority="high"
       />
@@ -21,17 +21,17 @@ export function Hero() {
         <h1 className="font-display text-7xl leading-tight text-white drop-shadow-sm sm:text-8xl lg:text-9xl">Pawl</h1>
         <p className="mt-1 font-hand text-3xl text-brand sm:text-4xl">The Pal of your Paw</p>
         <p className="mt-5 max-w-md text-base text-white/90 sm:text-lg">
-          Thức ăn, cát vệ sinh, snack và phụ kiện chính hãng cho boss nhà bạn. Đặt trong vài phút, giao ngay trong ngày.
+          Genuine food, litter, treats and accessories for your furry boss. Order in minutes, delivered the same day.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <ButtonLink to="/products" size="lg">
-            Mua ngay
+            Shop now
           </ButtonLink>
-          <ButtonLink to="/c/meo" size="lg" variant="light">
-            <CatIcon className="text-xl" /> Cho Mèo
+          <ButtonLink to="/c/cat" size="lg" variant="light">
+            <CatIcon className="text-xl" /> For cats
           </ButtonLink>
-          <ButtonLink to="/c/cho" size="lg" variant="light">
-            <DogIcon className="text-xl" /> Cho Chó
+          <ButtonLink to="/c/dog" size="lg" variant="light">
+            <DogIcon className="text-xl" /> For dogs
           </ButtonLink>
         </div>
       </div>

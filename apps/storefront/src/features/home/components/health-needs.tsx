@@ -10,9 +10,9 @@ export function HealthNeeds() {
       <div className="container-page py-12 sm:py-16">
         <div className="flex flex-col gap-6 rounded-3xl bg-accent-soft p-6 sm:p-10 lg:flex-row lg:items-center">
           <div className="lg:w-80">
-            <p className="font-hand text-2xl text-accent">Bé nhà bạn cần gì?</p>
-            <h2 className="mt-1 text-2xl font-bold sm:text-3xl">Mua theo nhu cầu sức khoẻ</h2>
-            <p className="mt-2 text-sm text-ink-soft">Chọn một nhu cầu để xem các sản phẩm phù hợp.</p>
+            <p className="font-hand text-2xl text-accent">What does your pet need?</p>
+            <h2 className="mt-1 text-2xl font-bold sm:text-3xl">Shop by health need</h2>
+            <p className="mt-2 text-sm text-ink-soft">Pick a need to see matching products.</p>
           </div>
           <ul className="flex flex-1 flex-wrap gap-2 sm:gap-3">
             {HEALTH.map((option) => (

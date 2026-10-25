@@ -10,6 +10,10 @@ import { CartContext, cartKeys, type CartContextValue } from './use-cart'
 
 const CART_ID_KEY = 'pawl_cart_id'
 
+function errorMessage(error: unknown, fallback: string) {
+  return error instanceof FetchError && /inventory|stock/i.test(error.message) ? 'Sorry, there is not enough stock for that quantity.' : fallback
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
   const { showToast } = useToast()
@@ -46,16 +50,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [forgetCart, queryClient],
   )
 
-  const onError = useCallback(
-    (error: Error) => {
-      const outOfStock = error instanceof FetchError && /inventory|stock/i.test(error.message)
-      showToast(outOfStock ? 'Sản phẩm không còn đủ số lượng bạn chọn.' : 'Không cập nhật được giỏ hàng. Vui lòng thử lại.', 'error')
-    },
-    [showToast],
-  )
-
   const addMutation = useMutation({
-    mutationFn: async ({ variantId, quantity }: { variantId: string; quantity: number }) => {
+    mutationFn: async ({ variantId, quantity }: { variantId: string; quantity: number; openDrawer: boolean }) => {
       let id = cartQuery.data?.id ?? null
       if (!id) {
         if (!region.data) throw new Error('Region not loaded')
@@ -70,26 +66,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return addLineItem(fresh.id, variantId, quantity)
       }
     },
-    onSuccess: (cart) => {
+    onSuccess: (cart, { openDrawer }) => {
       setCart(cart)
-      setDrawerOpen(true)
+      if (openDrawer) setDrawerOpen(true)
     },
-    onError: (error) => {
-      const outOfStock = error instanceof FetchError && /inventory|stock/i.test(error.message)
-      showToast(outOfStock ? 'Sản phẩm không còn đủ số lượng bạn chọn.' : 'Không thêm được vào giỏ. Vui lòng thử lại.', 'error')
-    },
+    onError: (error) => showToast(errorMessage(error, 'Could not add the item to your cart. Please try again.'), 'error'),
   })
 
   const updateMutation = useMutation({
     mutationFn: ({ lineId, quantity }: { lineId: string; quantity: number }) => updateLineItem(cartId!, lineId, quantity),
     onSuccess: setCart,
-    onError,
+    onError: (error) => showToast(errorMessage(error, 'Could not update your cart. Please try again.'), 'error'),
   })
 
   const removeMutation = useMutation({
     mutationFn: (lineId: string) => deleteLineItem(cartId!, lineId),
     onSuccess: setCart,
-    onError,
+    onError: () => showToast('Could not update your cart. Please try again.', 'error'),
   })
 
   const cart = cartQuery.data ?? null
@@ -99,22 +92,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
       itemCount: (cart?.items ?? []).reduce((sum, item) => sum + item.quantity, 0),
       isLoading: cartQuery.isLoading,
       isUpdating: addMutation.isPending || updateMutation.isPending || removeMutation.isPending,
-      addItem: async (variantId, quantity) => {
-        await addMutation.mutateAsync({ variantId, quantity }).catch(() => undefined)
-      },
+      addItem: async (variantId, quantity, options) =>
+        addMutation
+          .mutateAsync({ variantId, quantity, openDrawer: options?.openDrawer ?? true })
+          .then(() => true)
+          .catch(() => false),
       updateItem: async (lineId, quantity) => {
         await updateMutation.mutateAsync({ lineId, quantity }).catch(() => undefined)
       },
       removeItem: async (lineId) => {
         await removeMutation.mutateAsync(lineId).catch(() => undefined)
       },
+      setCart,
+      clearCart: forgetCart,
       isDrawerOpen,
       openDrawer: () => setDrawerOpen(true),
       closeDrawer: () => setDrawerOpen(false),
     }),
-    [cart, cartQuery.isLoading, addMutation, updateMutation, removeMutation, isDrawerOpen],
+    [cart, cartQuery.isLoading, addMutation, updateMutation, removeMutation, setCart, forgetCart, isDrawerOpen],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }
-

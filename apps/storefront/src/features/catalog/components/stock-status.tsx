@@ -3,7 +3,7 @@ import { cx } from '../../../lib/cx'
 const LOW_STOCK = 5
 
 export function StockStatus({ available }: { available: number }) {
-  const label = available <= 0 ? 'Hết hàng' : available <= LOW_STOCK ? `Chỉ còn ${available} sản phẩm` : 'Còn hàng'
+  const label = available <= 0 ? 'Out of stock' : available <= LOW_STOCK ? `Only ${available} left` : 'In stock'
   const tone = available <= 0 ? 'bg-danger-soft text-danger' : available <= LOW_STOCK ? 'bg-brand-soft text-brand-deep' : 'bg-success-soft text-success'
 
   return (

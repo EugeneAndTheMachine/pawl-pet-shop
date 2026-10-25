@@ -71,7 +71,7 @@ export function Drawer({ open, onClose, title, side = 'right', children, footer,
       >
         <div className="flex items-center justify-between border-b border-line px-5 py-4">
           <h2 className="text-lg font-semibold">{title}</h2>
-          <button type="button" onClick={onClose} className="rounded-full p-2 text-xl hover:bg-ink/5" aria-label="Đóng">
+          <button type="button" onClick={onClose} className="rounded-full p-2 text-xl hover:bg-ink/5" aria-label="Close">
             <CloseIcon />
           </button>
         </div>

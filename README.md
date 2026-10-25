@@ -62,18 +62,45 @@ Mở http://localhost:5173.
 
 Hai script seed chạy lại nhiều lần được: thứ gì đã có thì bỏ qua, không tạo trùng và không ghi đè chỉnh sửa trong Admin.
 
-- `seed.ts`: store "Pawl" chỉ dùng VND; region "Việt Nam" thanh toán COD; giá **đã gồm VAT** (tax-inclusive, thuế suất mặc định 10%, đơn giản hoá cho demo); kho "Kho TP.HCM"; 2 phương thức giao hàng: tiêu chuẩn 30.000₫, nhanh 45.000₫. Cuối script in ra publishable key để chép vào `apps/storefront/.env`.
-- `seed-catalog.ts`: cây danh mục Mèo/Chó, 36 sản phẩm (1–3 biến thể mỗi sản phẩm), collection "Bán chạy", tồn kho tại "Kho TP.HCM". Thuộc tính lọc lưu bằng tag dạng `prefix:value` (`species:`, `life:`, `health:`, `free:`, `form:`); `product.metadata` có `brand`, `ingredients`, `kcal_per_kg`, `feeding_guide`.
+- `seed.ts`: store "Pawl" chỉ dùng VND; region "Vietnam" thanh toán COD (tự thêm VNPay khi `.env` có key VNPay); giá **đã gồm VAT** (tax-inclusive, thuế suất mặc định 10%, đơn giản hoá cho demo); kho "HCMC Warehouse"; 2 phương thức giao hàng: tiêu chuẩn 30.000₫, nhanh 45.000₫; mã giảm giá demo **`PAWL10`** (giảm 10% cả đơn). Cuối script in ra publishable key để chép vào `apps/storefront/.env`.
+- `seed-catalog.ts`: cây danh mục Cats/Dogs, 36 sản phẩm (1–3 biến thể mỗi sản phẩm), collection "Best Sellers", tồn kho tại "HCMC Warehouse". Thuộc tính lọc lưu bằng tag dạng `prefix:value` (`species:`, `life:`, `health:`, `free:`, `form:`); `product.metadata` có `brand`, `ingredients`, `kcal_per_kg`, `feeding_guide`.
+- Nội dung hiển thị (tên sản phẩm, danh mục, phương thức giao hàng, giao diện storefront) bằng **tiếng Anh**; tỉnh/thành dùng tên Việt Nam không dấu.
 - Tên thương hiệu là thật, nhưng **mô tả, thành phần, kcal và hướng dẫn cho ăn do nhóm tự soạn cho demo**, không phải thông số chính thức của nhà sản xuất. Ảnh là placeholder (placehold.co); ảnh thật upload qua Admin.
+- Muốn seed lại từ đầu (ví dụ sau khi đổi tên dữ liệu mẫu): `npx medusa exec ./src/scripts/reset-demo-data.ts confirm` xoá sản phẩm, danh mục, collection, kho và phương thức giao hàng do seed tạo (giữ store, region, publishable key, khuyến mãi, khách hàng và đơn hàng), rồi chạy lại 2 script seed.
 - Giá trong Medusa v2 lưu theo đơn vị chính, VND không có phần lẻ: `145000` nghĩa là 145.000₫. ESLint rule `@medusajs/prices-in-major-units` cảnh báo nhầm với VND; đó chỉ là warning, không phải lỗi.
 
 ## Tài khoản demo
 
 _(Bổ sung ở M1/M5.)_
 
-## Thẻ test VNPay sandbox
+## Thanh toán
 
-_(Bổ sung ở M3.)_
+Storefront có 2 phương thức: **COD** (`pp_system_default`, luôn có) và **VNPay sandbox** (`pp_vnpay_vnpay`, chỉ bật khi có key).
+
+### Bật VNPay sandbox
+
+1. Đăng ký merchant sandbox tại trang đăng ký sandbox của VNPay, nhận `vnp_TmnCode` và `vnp_HashSecret` qua email.
+2. Điền vào `apps/backend/.env`: `VNP_TMN_CODE`, `VNP_HASH_SECRET` (các biến `VNP_PAY_URL`, `VNP_API_URL`, `VNP_RETURN_URL` để mặc định khi chạy local).
+3. Khởi động lại backend rồi chạy lại `npx medusa exec ./src/scripts/seed.ts` để gắn VNPay vào region "Vietnam".
+
+Thiếu key thì backend không nạp provider VNPay và storefront chỉ hiện COD. Nếu region đã gắn VNPay nhưng máy bạn thiếu key, chọn VNPay sẽ báo "not available" thay vì im lặng.
+
+Luồng: Review → chuyển sang trang VNPay → VNPay trả về `/checkout/result` → backend kiểm tra chữ ký (`GET /store/vnpay/verify`) → storefront hoàn tất giỏ → `/orders/:id/confirmed`. Khi tạo đơn, provider hỏi lại VNPay bằng API `querydr`; nếu sandbox không trả lời được thì dùng kết quả đã kiểm tra chữ ký do route verify/IPN ghi lại. IPN (`GET /hooks/vnpay/ipn`) chỉ chạy khi backend có URL public (deploy hoặc tunnel như cloudflared/ngrok); khi dev không có IPN thì luồng return URL vẫn đủ để demo.
+
+### Thẻ test VNPay sandbox
+
+| Ngân hàng | Số thẻ | Tên chủ thẻ | Ngày phát hành | OTP |
+|---|---|---|---|---|
+| NCB | `9704198526191432198` | `NGUYEN VAN A` | `07/15` | `123456` |
+
+Thông tin thẻ test có thể thay đổi, kiểm tra lại trên trang tài liệu sandbox của VNPay.
+
+### Kiểm thử
+
+```bash
+cd apps/backend
+npm run test:unit    # ký/kiểm tra chữ ký VNPay, route verify + IPN, validate query
+```
 
 ## Tài liệu khác
 

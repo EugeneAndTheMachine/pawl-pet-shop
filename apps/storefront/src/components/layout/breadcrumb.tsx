@@ -9,7 +9,7 @@ export function Breadcrumb({ items }: { items: Crumb[] }) {
       <ol className="flex flex-wrap items-center gap-1">
         <li>
           <Link to="/" className="hover:text-brand-strong">
-            Trang chủ
+            Home
           </Link>
         </li>
         {items.map((item, i) => (

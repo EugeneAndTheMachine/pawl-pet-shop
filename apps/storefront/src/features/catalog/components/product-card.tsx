@@ -24,10 +24,10 @@ export function ProductCard({ product }: { product: HttpTypes.StoreProduct }) {
       <Link to={href} className="relative block aspect-square bg-surface p-4" tabIndex={-1} aria-hidden="true">
         <ProductImage src={product.thumbnail} alt="" className="size-full transition-transform duration-300 group-hover:scale-105" />
         {!inStock && (
-          <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 text-xs font-semibold text-white">Hết hàng</span>
+          <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 text-xs font-semibold text-white">Out of stock</span>
         )}
         {inStock && onSale && (
-          <span className="absolute left-3 top-3 rounded-full bg-brand px-2.5 py-1 text-xs font-bold text-white">Giảm giá</span>
+          <span className="absolute left-3 top-3 rounded-full bg-brand px-2.5 py-1 text-xs font-bold text-white">Sale</span>
         )}
       </Link>
 
@@ -52,14 +52,14 @@ export function ProductCard({ product }: { product: HttpTypes.StoreProduct }) {
           <div>
             {min != null ? (
               <p className="text-lg font-bold text-brand-strong">
-                {max != null && max > min && <span className="mr-1 text-xs font-medium text-ink-soft">từ</span>}
+                {max != null && max > min && <span className="mr-1 text-xs font-medium text-ink-soft">from</span>}
                 {formatVND(min)}
               </p>
             ) : (
-              <p className="text-sm text-ink-soft">Liên hệ</p>
+              <p className="text-sm text-ink-soft">Price on request</p>
             )}
             {onSale && <p className="text-xs text-ink-soft line-through">{formatVND(original)}</p>}
-            {variants.length > 1 && <p className="text-xs text-ink-soft">{variants.length} lựa chọn</p>}
+            {variants.length > 1 && <p className="text-xs text-ink-soft">{variants.length} options</p>}
           </div>
 
           {/* Quick add only when there is nothing to choose; otherwise go to the detail page */}
@@ -69,7 +69,7 @@ export function ProductCard({ product }: { product: HttpTypes.StoreProduct }) {
               onClick={() => addItem(single.id, 1)}
               disabled={isUpdating}
               className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full bg-brand-strong text-lg text-white transition-colors hover:bg-brand-deep disabled:opacity-60"
-              aria-label={`Thêm ${product.title} vào giỏ`}
+              aria-label={`Add ${product.title} to cart`}
             >
               <CartIcon />
             </button>
@@ -77,7 +77,7 @@ export function ProductCard({ product }: { product: HttpTypes.StoreProduct }) {
             <Link
               to={href}
               className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full border border-line text-lg text-ink transition-colors hover:border-accent hover:text-accent"
-              aria-label={inStock ? `Chọn loại cho ${product.title}` : `Xem ${product.title}`}
+              aria-label={inStock ? `Choose options for ${product.title}` : `View ${product.title}`}
             >
               <ChevronRightIcon />
             </Link>

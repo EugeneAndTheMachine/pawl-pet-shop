@@ -27,18 +27,18 @@ export function SearchBox({ className, onSubmitted }: { className?: string; onSu
   return (
     <form role="search" onSubmit={submit} className={cx('relative', className)}>
       <label htmlFor="site-search" className="sr-only">
-        Tìm sản phẩm
+        Search products
       </label>
       <input
         id="site-search"
         type="search"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Tìm hạt, pate, cát vệ sinh…"
+        placeholder="Search food, litter, treats…"
         className="h-10 w-full rounded-full border border-transparent bg-white pl-4 pr-11 text-sm text-ink placeholder:text-ink-soft focus:border-brand focus:outline-none"
         enterKeyHint="search"
       />
-      <button type="submit" className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-brand-strong text-white hover:bg-brand-deep" aria-label="Tìm kiếm">
+      <button type="submit" className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-brand-strong text-white hover:bg-brand-deep" aria-label="Search">
         <SearchIcon />
       </button>
     </form>

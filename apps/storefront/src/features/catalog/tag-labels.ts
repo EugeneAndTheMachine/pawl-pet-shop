@@ -1,4 +1,4 @@
-// Vietnamese labels for the product tag convention `prefix:value` (see seed-catalog.ts on the backend)
+// Display labels for the product tag convention `prefix:value` (see seed-catalog.ts on the backend)
 
 export type TagGroup = 'species' | 'life' | 'health' | 'free' | 'form'
 
@@ -11,56 +11,56 @@ export type TagGroupDefinition = {
 export const TAG_GROUPS: TagGroupDefinition[] = [
   {
     key: 'species',
-    label: 'Loài',
+    label: 'Pet',
     options: [
-      { value: 'cat', label: 'Mèo' },
-      { value: 'dog', label: 'Chó' },
+      { value: 'cat', label: 'Cat' },
+      { value: 'dog', label: 'Dog' },
     ],
   },
   {
     key: 'life',
-    label: 'Giai đoạn tuổi',
+    label: 'Life stage',
     options: [
-      { value: 'kitten', label: 'Mèo con' },
-      { value: 'puppy', label: 'Chó con' },
-      { value: 'adult', label: 'Trưởng thành' },
-      { value: 'senior', label: 'Lớn tuổi' },
-      { value: 'all', label: 'Mọi lứa tuổi' },
+      { value: 'kitten', label: 'Kitten' },
+      { value: 'puppy', label: 'Puppy' },
+      { value: 'adult', label: 'Adult' },
+      { value: 'senior', label: 'Senior' },
+      { value: 'all', label: 'All ages' },
     ],
   },
   {
     key: 'health',
-    label: 'Nhu cầu sức khoẻ',
+    label: 'Health needs',
     options: [
-      { value: 'urinary', label: 'Tiết niệu' },
-      { value: 'hairball', label: 'Búi lông' },
-      { value: 'sensitive-stomach', label: 'Tiêu hoá nhạy cảm' },
-      { value: 'weight-control', label: 'Kiểm soát cân nặng' },
-      { value: 'skin-coat', label: 'Da & lông' },
-      { value: 'dental', label: 'Răng miệng' },
-      { value: 'sterilised', label: 'Đã triệt sản' },
+      { value: 'urinary', label: 'Urinary care' },
+      { value: 'hairball', label: 'Hairball control' },
+      { value: 'sensitive-stomach', label: 'Sensitive stomach' },
+      { value: 'weight-control', label: 'Weight control' },
+      { value: 'skin-coat', label: 'Skin & coat' },
+      { value: 'dental', label: 'Dental care' },
+      { value: 'sterilised', label: 'Neutered' },
     ],
   },
   {
     key: 'free',
-    label: 'Không chứa',
+    label: 'Free from',
     options: [
-      { value: 'chicken', label: 'Không gà' },
-      { value: 'beef', label: 'Không bò' },
-      { value: 'fish', label: 'Không cá' },
-      { value: 'grain', label: 'Không ngũ cốc' },
+      { value: 'chicken', label: 'No chicken' },
+      { value: 'beef', label: 'No beef' },
+      { value: 'fish', label: 'No fish' },
+      { value: 'grain', label: 'Grain-free' },
     ],
   },
   {
     key: 'form',
-    label: 'Dạng sản phẩm',
+    label: 'Product type',
     options: [
-      { value: 'dry', label: 'Thức ăn hạt' },
-      { value: 'wet', label: 'Pate & thức ăn ướt' },
-      { value: 'litter', label: 'Cát vệ sinh' },
-      { value: 'treat', label: 'Snack' },
-      { value: 'supplement', label: 'Dinh dưỡng bổ sung' },
-      { value: 'accessory', label: 'Phụ kiện' },
+      { value: 'dry', label: 'Dry food' },
+      { value: 'wet', label: 'Wet food' },
+      { value: 'litter', label: 'Litter' },
+      { value: 'treat', label: 'Treats' },
+      { value: 'supplement', label: 'Supplements' },
+      { value: 'accessory', label: 'Accessories' },
     ],
   },
 ]

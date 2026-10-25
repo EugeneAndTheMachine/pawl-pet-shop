@@ -1,15 +1,15 @@
 import { RefreshIcon, ShieldIcon, TruckIcon, WalletIcon } from '../../../components/ui/icons'
 
 const ITEMS = [
-  { icon: <TruckIcon />, title: 'Giao nhanh trong ngày', text: 'Nội thành TP.HCM, từ 30.000₫' },
-  { icon: <WalletIcon />, title: 'COD hoặc VNPay', text: 'Thanh toán khi nhận hàng' },
-  { icon: <RefreshIcon />, title: 'Đổi trả trong 7 ngày', text: 'Sản phẩm lỗi, giao nhầm' },
-  { icon: <ShieldIcon />, title: 'Hàng chính hãng', text: 'Thành phần minh bạch' },
+  { icon: <TruckIcon />, title: 'Same-day delivery', text: 'Inner Ho Chi Minh City, from ₫30,000' },
+  { icon: <WalletIcon />, title: 'Cash on delivery or VNPay', text: 'Pay the way you prefer' },
+  { icon: <RefreshIcon />, title: '7-day returns', text: 'For damaged or wrong items' },
+  { icon: <ShieldIcon />, title: '100% genuine', text: 'Clear ingredient lists' },
 ]
 
 export function TrustStrip() {
   return (
-    <section aria-label="Cam kết của Pawl" className="border-b border-line bg-surface">
+    <section aria-label="Why shop with Pawl" className="border-b border-line bg-surface">
       <ul className="container-page grid grid-cols-2 gap-x-4 gap-y-5 py-6 lg:grid-cols-4">
         {ITEMS.map((item) => (
           <li key={item.title} className="flex items-center gap-3">

@@ -36,7 +36,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           >
             <span className="mt-0.5 text-base">{t.tone === 'error' ? <AlertIcon /> : <CheckIcon />}</span>
             <p className="flex-1">{t.message}</p>
-            <button type="button" onClick={() => dismiss(t.id)} className="text-base opacity-80 hover:opacity-100" aria-label="Đóng thông báo">
+            <button type="button" onClick={() => dismiss(t.id)} className="text-base opacity-80 hover:opacity-100" aria-label="Dismiss">
               <CloseIcon />
             </button>
           </div>

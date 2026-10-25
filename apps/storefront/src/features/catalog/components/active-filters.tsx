@@ -18,12 +18,12 @@ export function ActiveFilters({ filters, collectionTitle }: { filters: CatalogFi
   if (filters.minPrice != null || filters.maxPrice != null) {
     chips.push({
       key: 'price',
-      label: `${filters.minPrice != null ? formatVND(filters.minPrice) : '0₫'} – ${filters.maxPrice != null ? formatVND(filters.maxPrice) : '∞'}`,
+      label: `${filters.minPrice != null ? formatVND(filters.minPrice) : '₫0'} – ${filters.maxPrice != null ? formatVND(filters.maxPrice) : '∞'}`,
       next: updateParams(params, { min: null, max: null }),
     })
   }
   if (filters.collection) {
-    chips.push({ key: 'collection', label: collectionTitle ?? 'Bộ sưu tập', next: updateParams(params, { collection: null }) })
+    chips.push({ key: 'collection', label: collectionTitle ?? 'Collection', next: updateParams(params, { collection: null }) })
   }
 
   return (
@@ -34,7 +34,7 @@ export function ActiveFilters({ filters, collectionTitle }: { filters: CatalogFi
           type="button"
           onClick={() => setParams(chip.next, { preventScrollReset: true })}
           className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft py-1 pl-3 pr-2 text-sm font-medium text-accent-dark hover:bg-accent/15"
-          aria-label={`Bỏ lọc ${chip.label}`}
+          aria-label={`Remove filter ${chip.label}`}
         >
           {chip.label}
           <CloseIcon className="text-xs" />
@@ -45,7 +45,7 @@ export function ActiveFilters({ filters, collectionTitle }: { filters: CatalogFi
         onClick={() => setParams(clearFilters(params), { preventScrollReset: true })}
         className="text-sm font-semibold text-brand-strong underline-offset-2 hover:underline"
       >
-        Xoá tất cả
+        Clear all
       </button>
     </div>
   )

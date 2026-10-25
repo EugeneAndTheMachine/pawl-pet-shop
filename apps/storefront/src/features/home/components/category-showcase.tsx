@@ -6,10 +6,10 @@ import toysImg from '../../../assets/images/category-toys.webp'
 import { ChevronRightIcon } from '../../../components/ui/icons'
 
 const CARDS = [
-  { title: 'Thức ăn hạt & pate', text: 'Bữa chính đủ chất cho mọi lứa tuổi', to: '/products?form=dry,wet', image: foodImg },
-  { title: 'Snack & dinh dưỡng', text: 'Phần thưởng nhỏ, bổ sung khoẻ mạnh', to: '/products?form=treat,supplement', image: bowl, round: true },
-  { title: 'Cát & vệ sinh', text: 'Sạch sẽ, khử mùi cho góc của bé', to: '/products?form=litter', image: hygieneImg },
-  { title: 'Đồ chơi & phụ kiện', text: 'Vận động, đi dạo và ăn uống tiện lợi', to: '/products?form=accessory', image: toysImg },
+  { title: 'Dry & wet food', text: 'Complete meals for every life stage', to: '/products?form=dry,wet', image: foodImg },
+  { title: 'Treats & supplements', text: 'Little rewards and healthy extras', to: '/products?form=treat,supplement', image: bowl, round: true },
+  { title: 'Litter & hygiene', text: 'A clean, odour-free corner for your cat', to: '/products?form=litter', image: hygieneImg },
+  { title: 'Toys & accessories', text: 'Play, walks and easy mealtimes', to: '/products?form=accessory', image: toysImg },
 ]
 
 export function CategoryShowcase() {
@@ -19,8 +19,8 @@ export function CategoryShowcase() {
 
       <div className="container-page py-16 lg:py-20">
         <div className="text-center">
-          <h2 className="font-display text-4xl text-white sm:text-5xl">Sản phẩm của Pawl</h2>
-          <p className="mt-3 text-white/80">Chọn nhanh theo nhu cầu, rồi lọc tiếp theo tuổi và sức khoẻ của bé</p>
+          <h2 className="font-display text-4xl text-white sm:text-5xl">Shop by category</h2>
+          <p className="mt-3 text-white/80">Start with what you need, then filter by age and health</p>
         </div>
 
         <ul className="mx-auto mt-10 grid max-w-5xl gap-5 sm:grid-cols-2">
@@ -42,7 +42,7 @@ export function CategoryShowcase() {
                   <h3 className="text-xl font-bold text-white sm:text-2xl">{card.title}</h3>
                   <p className="mt-1 text-sm text-white/75">{card.text}</p>
                   <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand">
-                    Xem ngay <ChevronRightIcon />
+                    Shop now <ChevronRightIcon />
                   </span>
                 </div>
               </Link>

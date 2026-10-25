@@ -14,7 +14,7 @@ export function ProductGallery({ product }: { product: HttpTypes.StoreProduct })
         <ProductImage src={current} alt={product.title ?? ''} className="size-full" eager />
       </div>
       {urls.length > 1 && (
-        <ul className="no-scrollbar flex gap-3 overflow-x-auto md:w-20 md:flex-col" aria-label="Ảnh sản phẩm">
+        <ul className="no-scrollbar flex gap-3 overflow-x-auto md:w-20 md:flex-col" aria-label="Product images">
           {urls.map((url, i) => (
             <li key={url} className="shrink-0">
               <button
@@ -24,7 +24,7 @@ export function ProductGallery({ product }: { product: HttpTypes.StoreProduct })
                   'size-16 overflow-hidden rounded-xl border-2 bg-white p-1 md:size-20',
                   i === active ? 'border-accent' : 'border-transparent hover:border-line',
                 )}
-                aria-label={`Xem ảnh ${i + 1}`}
+                aria-label={`Show image ${i + 1}`}
                 aria-current={i === active}
               >
                 <ProductImage src={url} alt="" className="size-full" />

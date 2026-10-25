@@ -2,7 +2,7 @@ import aboutFood from '../../../assets/images/about-food.webp'
 import bowl from '../../../assets/images/bowl.webp'
 import { CheckIcon } from '../../../components/ui/icons'
 
-const POINTS = ['Lọc sản phẩm theo nhu cầu sức khoẻ của bé', 'Thành phần, năng lượng và lượng ăn ghi rõ ràng', 'Giao trong ngày, thanh toán khi nhận hàng']
+const POINTS = ["Filter products by your pet's health needs",'Ingredients, calories and feeding amounts clearly listed', 'Same-day delivery and cash on delivery']
 
 export function AboutSection() {
   return (
@@ -12,14 +12,14 @@ export function AboutSection() {
 
       <div className="container-page grid items-center gap-10 py-16 md:grid-cols-[1.2fr_1fr] lg:py-24">
         <div>
-          <h2 className="font-display text-4xl text-brand sm:text-5xl">Về Pawl</h2>
+          <h2 className="font-display text-4xl text-brand sm:text-5xl">About Pawl</h2>
           <p className="mt-6 leading-relaxed">
-            Pawl bắt đầu từ chính những người đi làm bận rộn đang nuôi “boss” ở TP.HCM và Hà Nội. Chúng mình hiểu cảm giác hết hạt giữa tuần mà không kịp ghé cửa
-            hàng, hay đứng trước cả kệ thức ăn mà không biết loại nào hợp với bé.
+            Pawl was started by busy pet parents in Ho Chi Minh City and Hanoi. We know the feeling of running out of kibble mid-week with no time to visit
+            a store, or standing in front of a whole shelf of food without knowing which one suits your pet.
           </p>
           <p className="mt-4 leading-relaxed">
-            Vì vậy Pawl chọn lọc thức ăn, cát vệ sinh, snack và phụ kiện chính hãng, ghi rõ độ tuổi, nhu cầu sức khoẻ và thành phần, để bạn chọn đúng món cho bé
-            chỉ trong vài phút.
+            So Pawl curates genuine food, litter, treats and accessories, labelled by life stage, health needs and ingredients, so you can pick the right one
+            in just a few minutes.
           </p>
           <ul className="mt-6 space-y-2">
             {POINTS.map((point) => (
@@ -32,7 +32,7 @@ export function AboutSection() {
             ))}
           </ul>
         </div>
-        <img src={aboutFood} alt="Bát hạt, hộp pate và dấu chân thú cưng" className="mx-auto w-full max-w-sm" loading="lazy" width={492} height={516} />
+        <img src={aboutFood} alt="A bowl of kibble, a can of wet food and a paw print" className="mx-auto w-full max-w-sm" loading="lazy" width={492} height={516} />
       </div>
     </section>
   )

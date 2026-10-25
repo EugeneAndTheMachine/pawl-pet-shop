@@ -47,7 +47,7 @@ export function VariantPicker({ product, selected, onChange }: VariantPickerProp
                     )}
                   >
                     {value}
-                    {!available && <span className="sr-only"> (hết hàng)</span>}
+                    {!available && <span className="sr-only"> (out of stock)</span>}
                   </button>
                 )
               })}

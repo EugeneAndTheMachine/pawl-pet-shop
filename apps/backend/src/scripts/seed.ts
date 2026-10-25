@@ -5,6 +5,7 @@ import {
 } from "@medusajs/framework/utils"
 import {
   createApiKeysWorkflow,
+  createPromotionsWorkflow,
   createRegionsWorkflow,
   createSalesChannelsWorkflow,
   createShippingOptionsWorkflow,
@@ -21,20 +22,23 @@ import {
 // Idempotent: the team shares one database, so every step looks up what exists before creating it.
 
 const STORE_NAME = "Pawl"
-const REGION_NAME = "Việt Nam"
-const STOCK_LOCATION_NAME = "Kho TP.HCM"
-const FULFILLMENT_SET_NAME = "Kho TP.HCM – Giao hàng"
-const SERVICE_ZONE_NAME = "Toàn quốc"
+const REGION_NAME = "Vietnam"
+export const STOCK_LOCATION_NAME = "HCMC Warehouse"
+export const FULFILLMENT_SET_NAME = "HCMC Warehouse – Shipping"
+const SERVICE_ZONE_NAME = "Nationwide"
 const API_KEY_TITLE = "Pawl Storefront"
 const MANUAL_FULFILLMENT_PROVIDER = "manual_manual"
 const COD_PAYMENT_PROVIDER = "pp_system_default"
-// Added to the region automatically once the VNPay provider (M3) is registered
+// Added to the region automatically once the VNPay provider is registered (VNP_* env vars set)
 const VNPAY_PAYMENT_PROVIDER = "pp_vnpay_vnpay"
 
 const SHIPPING_OPTIONS = [
-  { name: "Giao tiêu chuẩn (2–4 ngày)", code: "standard", amount: 30000, description: "Giao trong 2–4 ngày làm việc." },
-  { name: "Giao nhanh (trong ngày, nội thành)", code: "express", amount: 45000, description: "Giao trong ngày cho đơn nội thành." },
+  { name: "Standard delivery (2–4 days)", code: "standard", amount: 30000, description: "Delivered within 2–4 working days." },
+  { name: "Express delivery (same day, inner city)", code: "express", amount: 45000, description: "Same-day delivery for inner-city orders." },
 ]
+
+// Demo discount code shown in the README
+const DEMO_PROMOTION = { code: "PAWL10", percentage: 10 }
 
 export default async function seed({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
@@ -48,6 +52,7 @@ export default async function seed({ container }: ExecArgs) {
   const fulfillmentModule = container.resolve(Modules.FULFILLMENT)
   const paymentModule = container.resolve(Modules.PAYMENT)
   const apiKeyModule = container.resolve(Modules.API_KEY)
+  const promotionModule = container.resolve(Modules.PROMOTION)
 
   const [store] = await storeModule.listStores()
 
@@ -101,7 +106,7 @@ export default async function seed({ container }: ExecArgs) {
     await updateRegionsWorkflow(container).run({
       input: {
         selector: { id: region.id },
-        update: { payment_providers: regionProviders, is_tax_inclusive: true },
+        update: { name: REGION_NAME, payment_providers: regionProviders, is_tax_inclusive: true },
       },
     })
   }
@@ -131,9 +136,9 @@ export default async function seed({ container }: ExecArgs) {
           {
             name: STOCK_LOCATION_NAME,
             address: {
-              address_1: "123 Nguyễn Văn Linh (địa chỉ demo)",
-              city: "Phường Tân Thuận",
-              province: "TP. Hồ Chí Minh",
+              address_1: "123 Nguyen Van Linh (demo address)",
+              city: "Tan Thuan Ward",
+              province: "Ho Chi Minh City",
               country_code: "VN",
             },
           },
@@ -226,6 +231,32 @@ export default async function seed({ container }: ExecArgs) {
     await linkSalesChannelsToStockLocationWorkflow(container).run({
       input: { id: stockLocation.id, add: [salesChannel.id] },
     })
+  }
+
+  // Demo promotion: 10% off the whole order
+  const existingPromotions = await promotionModule.listPromotions({ code: DEMO_PROMOTION.code })
+  if (!existingPromotions.length) {
+    await createPromotionsWorkflow(container).run({
+      input: {
+        promotionsData: [
+          {
+            code: DEMO_PROMOTION.code,
+            type: "standard",
+            status: "active",
+            is_automatic: false,
+            is_tax_inclusive: true,
+            application_method: {
+              type: "percentage",
+              target_type: "order",
+              allocation: "across",
+              value: DEMO_PROMOTION.percentage,
+              currency_code: "vnd",
+            },
+          },
+        ],
+      },
+    })
+    logger.info(`Created promotion ${DEMO_PROMOTION.code} (${DEMO_PROMOTION.percentage}% off)`)
   }
 
   // Publishable API key: reuse an existing one so the storefront .env stays valid

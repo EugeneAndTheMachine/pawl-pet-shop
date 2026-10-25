@@ -33,7 +33,7 @@ export function ProductCardSkeleton() {
 
 export function ProductGridSkeleton({ count = 6, className }: { count?: number; className?: string }) {
   return (
-    <div className={cx(GRID, className)} aria-busy="true" aria-label="Đang tải sản phẩm">
+    <div className={cx(GRID, className)} aria-busy="true" aria-label="Loading products">
       {Array.from({ length: count }, (_, i) => (
         <ProductCardSkeleton key={i} />
       ))}

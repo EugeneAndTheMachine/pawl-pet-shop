@@ -18,12 +18,11 @@ import {
   PRODUCTS,
   ProductSeed,
 } from "./data/catalog"
+import { STOCK_LOCATION_NAME } from "./seed"
 
 // Demo catalog: npx medusa exec ./src/scripts/seed-catalog.ts (run seed.ts first)
 // Idempotent: existing categories, tags and products (matched by handle) are left untouched,
 // so edits made in Admin survive a re-run.
-
-const STOCK_LOCATION_NAME = "Kho TP.HCM"
 
 // Tag convention shared with the storefront filters and Phase 2 recommendations
 const TAG_VALUES: Record<string, string[]> = {
@@ -100,7 +99,7 @@ export default async function seedCatalog({ container }: ExecArgs) {
     logger.info(`Created ${missingTags.length} tags`)
   }
 
-  // "Bán chạy" collection (shown on the home page; editable in Admin)
+  // "Best Sellers" collection (shown on the home page; editable in Admin)
   let [collection] = await productModule.listProductCollections({ handle: BESTSELLER_COLLECTION.handle })
   if (!collection) {
     const { result } = await createCollectionsWorkflow(container).run({
@@ -158,7 +157,7 @@ export default async function seedCatalog({ container }: ExecArgs) {
     logger.info(`Skipped ${existingHandles.size} products that already exist`)
   }
 
-  // Stock at Kho TP.HCM, only for inventory items that have no level there yet
+  // Stock at the warehouse, only for inventory items that have no level there yet
   const stockBySku = new Map(PRODUCTS.flatMap((p) => p.variants.map((v) => [v.sku, v.stock] as const)))
   const inventoryItems = await inventoryModule.listInventoryItems({ sku: [...stockBySku.keys()] })
   const levels = await inventoryModule.listInventoryLevels({

@@ -7,10 +7,10 @@ import { toggleTag, updateParams, type CatalogFilters } from '../filters'
 import { TAG_GROUPS, type TagGroup } from '../tag-labels'
 
 const PRICE_PRESETS = [
-  { label: 'Dưới 100.000₫', min: undefined, max: 100000 },
-  { label: '100.000₫ – 300.000₫', min: 100000, max: 300000 },
-  { label: '300.000₫ – 500.000₫', min: 300000, max: 500000 },
-  { label: 'Trên 500.000₫', min: 500000, max: undefined },
+  { label: 'Under ₫100,000', min: undefined, max: 100000 },
+  { label: '₫100,000 – ₫300,000', min: 100000, max: 300000 },
+  { label: '₫300,000 – ₫500,000', min: 300000, max: 500000 },
+  { label: 'Over ₫500,000', min: 500000, max: undefined },
 ]
 
 type FilterPanelProps = {
@@ -57,7 +57,7 @@ export function FilterPanel({ filters, hiddenGroups = [], hiddenOptions = [] }: 
         </FilterSection>
       ))}
 
-      <FilterSection title="Khoảng giá" defaultOpen>
+      <FilterSection title="Price" defaultOpen>
         <PriceFilter
           key={`${filters.minPrice ?? ''}-${filters.maxPrice ?? ''}`}
           filters={filters}
@@ -123,32 +123,32 @@ function PriceFilter({ filters, onApply }: { filters: CatalogFilters; onApply: (
         })}
       </ul>
       <form onSubmit={submit} className="flex items-center gap-2">
-        <label className="sr-only" htmlFor="price-min">Giá từ</label>
+        <label className="sr-only" htmlFor="price-min">Minimum price</label>
         <input
           id="price-min"
           inputMode="numeric"
-          placeholder="Từ"
+          placeholder="Min"
           value={min}
           onChange={(e) => setMin(e.target.value.replace(/\D/g, ''))}
           className="h-9 w-full min-w-0 rounded-lg border border-line bg-white px-2 text-sm"
         />
         <span aria-hidden="true">–</span>
-        <label className="sr-only" htmlFor="price-max">Giá đến</label>
+        <label className="sr-only" htmlFor="price-max">Maximum price</label>
         <input
           id="price-max"
           inputMode="numeric"
-          placeholder="Đến"
+          placeholder="Max"
           value={max}
           onChange={(e) => setMax(e.target.value.replace(/\D/g, ''))}
           className="h-9 w-full min-w-0 rounded-lg border border-line bg-white px-2 text-sm"
         />
         <button type="submit" className="h-9 shrink-0 rounded-lg bg-accent px-3 text-sm font-semibold text-white hover:bg-accent-dark">
-          Áp dụng
+          Apply
         </button>
       </form>
       {(filters.minPrice != null || filters.maxPrice != null) && (
         <p className="text-xs text-ink-soft">
-          Đang lọc: {filters.minPrice != null ? formatVND(filters.minPrice) : '0₫'} – {filters.maxPrice != null ? formatVND(filters.maxPrice) : 'không giới hạn'}
+          Showing: {filters.minPrice != null ? formatVND(filters.minPrice) : '₫0'} – {filters.maxPrice != null ? formatVND(filters.maxPrice) : 'no limit'}
         </p>
       )}
     </div>

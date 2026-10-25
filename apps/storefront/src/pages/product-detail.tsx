@@ -35,8 +35,8 @@ export default function ProductDetailPage() {
     return (
       <div className="container-page flex flex-col items-center gap-4 py-20 text-center">
         <AlertIcon className="text-4xl text-danger" />
-        <p className="font-semibold">Không tải được sản phẩm. Vui lòng thử lại.</p>
-        <Button onClick={() => refetch()}>Thử lại</Button>
+        <p className="font-semibold">We couldn't load this product. Please try again.</p>
+        <Button onClick={() => refetch()}>Try again</Button>
       </div>
     )
   }
@@ -99,7 +99,7 @@ function ProductDetail({ product }: { product: HttpTypes.StoreProduct }) {
   return (
     <div className="pb-24 lg:pb-0">
       <title>{`${product.title} – Pawl`}</title>
-      <meta name="description" content={product.description?.slice(0, 160) ?? `${product.title} tại Pawl`} />
+      <meta name="description" content={product.description?.slice(0, 160) ?? `${product.title} at Pawl`} />
 
       <div className="container-page py-6 sm:py-8">
         <Breadcrumb items={crumbs} />
@@ -112,7 +112,7 @@ function ProductDetail({ product }: { product: HttpTypes.StoreProduct }) {
               {brand && <p className="text-sm font-semibold uppercase tracking-wide text-accent">{brand}</p>}
               <h1 className="text-2xl font-bold leading-tight sm:text-3xl">{product.title}</h1>
               {tags.length > 0 && (
-                <ul className="flex flex-wrap gap-1.5 pt-1" aria-label="Đặc điểm">
+                <ul className="flex flex-wrap gap-1.5 pt-1" aria-label="Highlights">
                   {tags.map((label) => (
                     <li key={label} className="rounded-full bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent-dark">
                       {label}
@@ -123,11 +123,11 @@ function ProductDetail({ product }: { product: HttpTypes.StoreProduct }) {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <p className="text-3xl font-bold text-brand-strong">{price != null ? formatVND(price) : 'Liên hệ'}</p>
+              <p className="text-3xl font-bold text-brand-strong">{price != null ? formatVND(price) : 'Price on request'}</p>
               {original != null && price != null && original > price && <p className="text-lg text-ink-soft line-through">{formatVND(original)}</p>}
               <StockStatus available={variant ? available : 0} />
             </div>
-            <p className="-mt-4 text-xs text-ink-soft">Giá đã gồm VAT</p>
+            <p className="-mt-4 text-xs text-ink-soft">VAT included</p>
 
             {variants.length > 1 && <VariantPicker product={product} selected={selected} onChange={selectOption} />}
 
@@ -135,19 +135,19 @@ function ProductDetail({ product }: { product: HttpTypes.StoreProduct }) {
               <QuantityInput value={quantity} onChange={setQuantity} max={Math.max(1, maxQty)} disabled={!inStock} />
               <Button size="lg" className="flex-1 sm:flex-none sm:px-10" onClick={addToCart} disabled={!variant || !inStock} loading={isUpdating}>
                 <CartIcon className="text-xl" />
-                {inStock ? 'Thêm vào giỏ' : 'Tạm hết hàng'}
+                {inStock ? 'Add to cart' : 'Out of stock'}
               </Button>
             </div>
 
             <ul className="grid gap-3 rounded-2xl bg-white p-4 text-sm shadow-card sm:grid-cols-3">
               <li className="flex items-center gap-2">
-                <TruckIcon className="shrink-0 text-xl text-brand-strong" /> Giao 2–4 ngày, nội thành trong ngày
+                <TruckIcon className="shrink-0 text-xl text-brand-strong" /> Delivered in 2–4 days, same day in the inner city
               </li>
               <li className="flex items-center gap-2">
-                <WalletIcon className="shrink-0 text-xl text-brand-strong" /> COD hoặc VNPay
+                <WalletIcon className="shrink-0 text-xl text-brand-strong" /> Cash on delivery or VNPay
               </li>
               <li className="flex items-center gap-2">
-                <RefreshIcon className="shrink-0 text-xl text-brand-strong" /> Đổi trả trong 7 ngày
+                <RefreshIcon className="shrink-0 text-xl text-brand-strong" /> 7-day returns
               </li>
             </ul>
           </div>
@@ -160,7 +160,7 @@ function ProductDetail({ product }: { product: HttpTypes.StoreProduct }) {
 
       {category && (
         <ProductRail
-          title="Có thể bé cũng thích"
+          title="Your pet may also like"
           products={related.data}
           isLoading={related.isLoading}
           viewAllHref={`/c/${category.handle}`}
@@ -172,10 +172,10 @@ function ProductDetail({ product }: { product: HttpTypes.StoreProduct }) {
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs text-ink-soft">{variant?.title ?? product.title}</p>
-            <p className="font-bold text-brand-strong">{price != null ? formatVND(price) : 'Liên hệ'}</p>
+            <p className="font-bold text-brand-strong">{price != null ? formatVND(price) : 'Price on request'}</p>
           </div>
           <Button onClick={addToCart} disabled={!variant || !inStock} loading={isUpdating}>
-            {inStock ? 'Thêm vào giỏ' : 'Hết hàng'}
+            {inStock ? 'Add to cart' : 'Out of stock'}
           </Button>
         </div>
       </div>
@@ -185,7 +185,7 @@ function ProductDetail({ product }: { product: HttpTypes.StoreProduct }) {
 
 function ProductDetailSkeleton() {
   return (
-    <div className="container-page py-8" aria-busy="true" aria-label="Đang tải sản phẩm">
+    <div className="container-page py-8" aria-busy="true" aria-label="Loading product">
       <Skeleton className="h-4 w-64" />
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:gap-12">
         <Skeleton className="aspect-square rounded-3xl" />

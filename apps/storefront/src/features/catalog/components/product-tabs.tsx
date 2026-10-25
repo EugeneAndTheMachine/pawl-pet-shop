@@ -14,26 +14,26 @@ export function ProductTabs({ product }: { product: HttpTypes.StoreProduct }) {
   const tabs: Tab[] = [
     {
       key: 'description',
-      label: 'Mô tả',
-      content: <p className="whitespace-pre-line leading-relaxed">{product.description || 'Sản phẩm chưa có mô tả.'}</p>,
+      label: 'Description',
+      content: <p className="whitespace-pre-line leading-relaxed">{product.description || 'No description yet.'}</p>,
     },
   ]
   if (ingredients) {
-    tabs.push({ key: 'ingredients', label: 'Thành phần', content: <p className="leading-relaxed">{ingredients}</p> })
+    tabs.push({ key: 'ingredients', label: 'Ingredients', content: <p className="leading-relaxed">{ingredients}</p> })
   }
   if (feedingGuide || kcal) {
     tabs.push({
       key: 'feeding',
-      label: 'Hướng dẫn cho ăn',
+      label: 'Feeding guide',
       content: (
         <div className="space-y-3 leading-relaxed">
           {feedingGuide && <p>{feedingGuide}</p>}
           {kcal && (
             <p className="text-sm text-ink-soft">
-              Năng lượng: <strong className="text-ink">{kcal.toLocaleString('vi-VN')} kcal/kg</strong>
+              Energy: <strong className="text-ink">{kcal.toLocaleString('en-US')} kcal/kg</strong>
             </p>
           )}
-          <p className="text-xs text-ink-soft">Lượng ăn chỉ mang tính tham khảo, không thay thế tư vấn của bác sĩ thú y.</p>
+          <p className="text-xs text-ink-soft">Feeding amounts are a guide only and do not replace advice from your vet.</p>
         </div>
       ),
     })
@@ -51,7 +51,7 @@ export function ProductTabs({ product }: { product: HttpTypes.StoreProduct }) {
 
   return (
     <div className="rounded-3xl bg-white p-5 shadow-card sm:p-8">
-      <div role="tablist" aria-label="Thông tin sản phẩm" className="no-scrollbar flex gap-1 overflow-x-auto border-b border-line" onKeyDown={onKeyDown}>
+      <div role="tablist" aria-label="Product information" className="no-scrollbar flex gap-1 overflow-x-auto border-b border-line" onKeyDown={onKeyDown}>
         {tabs.map((tab) => {
           const selected = tab.key === tabs[activeIndex].key
           return (

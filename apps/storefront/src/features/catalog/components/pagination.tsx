@@ -27,8 +27,8 @@ export function Pagination({ page, totalPages }: { page: number; totalPages: num
   const btn = 'grid size-10 place-items-center rounded-full text-sm font-semibold transition-colors'
 
   return (
-    <nav aria-label="Phân trang" className="flex items-center justify-center gap-1">
-      <button type="button" className={cx(btn, 'hover:bg-ink/5 disabled:opacity-40')} onClick={() => go(page - 1)} disabled={page <= 1} aria-label="Trang trước">
+    <nav aria-label="Pagination" className="flex items-center justify-center gap-1">
+      <button type="button" className={cx(btn, 'hover:bg-ink/5 disabled:opacity-40')} onClick={() => go(page - 1)} disabled={page <= 1} aria-label="Previous page">
         <ChevronLeftIcon />
       </button>
       {pageList(page, totalPages).map((p, i) =>
@@ -41,13 +41,13 @@ export function Pagination({ page, totalPages }: { page: number; totalPages: num
             onClick={() => go(p)}
             className={cx(btn, p === page ? 'bg-accent text-white' : 'hover:bg-ink/5')}
             aria-current={p === page ? 'page' : undefined}
-            aria-label={`Trang ${p}`}
+            aria-label={`Page ${p}`}
           >
             {p}
           </button>
         ),
       )}
-      <button type="button" className={cx(btn, 'hover:bg-ink/5 disabled:opacity-40')} onClick={() => go(page + 1)} disabled={page >= totalPages} aria-label="Trang sau">
+      <button type="button" className={cx(btn, 'hover:bg-ink/5 disabled:opacity-40')} onClick={() => go(page + 1)} disabled={page >= totalPages} aria-label="Next page">
         <ChevronRightIcon />
       </button>
     </nav>

@@ -5,9 +5,9 @@ import { TAG_GROUPS, type TagGroup } from './tag-labels'
 export type SortKey = 'newest' | 'price_asc' | 'price_desc'
 
 export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: 'newest', label: 'Mới nhất' },
-  { value: 'price_asc', label: 'Giá tăng dần' },
-  { value: 'price_desc', label: 'Giá giảm dần' },
+  { value: 'newest', label: 'Newest' },
+  { value: 'price_asc', label: 'Price: low to high' },
+  { value: 'price_desc', label: 'Price: high to low' },
 ]
 
 export const PAGE_SIZE = 12

@@ -1,6 +1,6 @@
 # Pawl — Kế hoạch phát triển và tiến độ
 
-Cập nhật: Oct 19, 2026 · @Viet Nam
+Cập nhật: Oct 25, 2026 · @Viet Nam
 
 Pawl là website B2C bán đồ cho chó mèo (ưu tiên mèo): thức ăn hạt, pate, cát vệ sinh, snack, dinh dưỡng bổ sung, phụ kiện. Điểm khác biệt là **hồ sơ thú cưng → gợi ý sản phẩm** và **đặt hàng định kỳ** 2/4/6 tuần.
 
@@ -21,8 +21,8 @@ Hạn nộp: **23:59 ngày 14/11/2026** (Electronic Commerce CO3027).
 | --- | --- | --- | --- |
 | M0 | Thiết lập: Supabase, backend Medusa, storefront Vite | 19–21/10 | **Xong** (24/10) |
 | M1 | Dữ liệu mẫu: region VN, kho, vận chuyển, danh mục, 20–40 sản phẩm | 22–24/10 | **Xong** (24/10) |
-| M2 | Storefront: trang chủ, danh sách, lọc, chi tiết sản phẩm | 25–30/10 | **Xong** (24/10), chờ duyệt + commit |
-| M3 | Giỏ hàng, checkout, COD + VNPay sandbox | 31/10–05/11 | Chưa bắt đầu |
+| M2 | Storefront: trang chủ, danh sách, lọc, chi tiết sản phẩm | 25–30/10 | **Xong** (24/10) |
+| M3 | Giỏ hàng, checkout, COD + VNPay sandbox | 31/10–05/11 | **Xong** (25/10), chờ duyệt + commit; VNPay chờ key sandbox thật |
 | M4 | Tài khoản: đăng ký, đăng nhập, sổ địa chỉ, lịch sử đơn | 06–09/11 | Chưa bắt đầu |
 | M5 | Trang chính sách, SEO, responsive, bảo mật, `pawl-demo`, tài liệu, test | 10–13/11 | Chưa bắt đầu |
 | — | Dự phòng, nộp bài | 14/11 | — |
@@ -73,7 +73,29 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 - Đã kiểm tra bằng trình duyệt headless ở 375 px và 1280 px: không tràn ngang, không lỗi console; lọc, sắp xếp giá, đổi biến thể, thêm vào giỏ, 404 đều chạy đúng.
 - Giới hạn: Store API không sắp xếp theo giá, nên khi sắp xếp hoặc lọc theo giá storefront tải toàn bộ sản phẩm khớp bộ lọc rồi xử lý phía client (ổn với vài trăm sản phẩm). Link Đăng nhập/Đăng ký, `/cart`, `/checkout`, `/policies/*` sẽ có ở M3–M5.
 
-### 1.5 Thay đổi so với kế hoạch ban đầu (15/10)
+### 1.5 M3: giỏ hàng, checkout, thanh toán (25/10)
+
+- **Ngôn ngữ:** toàn bộ giao diện storefront và dữ liệu seed (sản phẩm, danh mục, kho, phương thức giao hàng) chuyển sang **tiếng Anh** theo yêu cầu bài nộp; giá vẫn VND, địa chỉ vẫn là tỉnh/thành Việt Nam. Handle danh mục đổi thành `cat`, `dog`, `cat-dry-food`…; `reset-demo-data.ts` xoá dữ liệu seed cũ để seed lại.
+- **Giỏ hàng** `/cart` + mini-cart: sửa số lượng, xoá, mã giảm giá (`PAWL10` giảm 10%, tạo trong `seed.ts`; mã sai thì báo lỗi), tạm tính, giảm giá, phí ship, tổng, phần VAT đã gồm.
+- **Checkout** `/checkout`: accordion 5 bước Contact → Delivery address → Delivery method → Payment → Review, validate từng bước bằng zod (SĐT VN, 34 tỉnh/thành). Tiến độ suy ra từ chính cart nên F5 vẫn giữ bước; bấm "Edit" để quay lại bước trước, không nhảy cóc được. SĐT liên hệ lưu ở `cart.metadata.contact_phone`. Bước Review bắt buộc tick đồng ý Điều khoản + Chính sách bảo mật.
+- **COD:** `cart.complete` → xoá `cart_id` → `/orders/:id/confirmed`. Đơn có trạng thái thanh toán `authorized` (thu khi giao).
+- **VNPay** (`src/modules/vnpay`, id `pp_vnpay_vnpay`): ký HMAC-SHA512 theo mẫu Node.js của VNPay, giờ Asia/Ho_Chi_Minh, hết hạn 15 phút, `vnp_Amount = tổng × 100`. `vnp_TxnRef` = ULID của cart + timestamp base36 (chỉ chữ và số), nên route verify/IPN tìm lại được cart. Bấm "Pay with VNPay" thì tạo lại session để URL luôn mới.
+  - `authorizePayment`: **cách A** gọi `querydr`; nếu VNPay không xác nhận được (ví dụ sandbox trả lỗi) thì **cách B** dùng kết quả đã kiểm tra chữ ký do route verify/IPN ghi vào `data` của payment session. Thành công thì trả `captured` (Medusa tự capture, Admin hiện "Paid"). Hoàn tiền là giả lập (chỉ log).
+  - `GET /store/vnpay/verify` (kiểm tra chữ ký + số tiền, không tạo đơn) và `GET /hooks/vnpay/ipn` (trả `RspCode` 00/01/02/04/97/99, idempotent, tự `completeCartWorkflow` nếu khách đóng trình duyệt). Query validate bằng zod, chỉ nhận tham số `vnp_*`.
+  - `/checkout/result`: kiểm tra → hoàn tất giỏ → trang xác nhận. Thất bại hoặc huỷ thì không tạo đơn, giỏ giữ nguyên, có nút "Try VNPay again" và "Pay on delivery instead".
+  - Provider chỉ được nạp khi `.env` có `VNP_TMN_CODE` + `VNP_HASH_SECRET`; chạy lại `seed.ts` để gắn vào region. **Hiện `.env` chưa có key nên region `pawl-dev` mới chỉ có COD.**
+- **`/orders/:id/confirmed`:** mã đơn, trạng thái thanh toán, địa chỉ, phương thức giao, phương thức thanh toán, sản phẩm, tổng; Guest thấy gợi ý "Create an account with this email".
+- **Subscriber:** `order.placed` gửi email xác nhận qua Notification provider `local` (in ra console). Đã có sẵn subscriber reset mật khẩu và `AuthProvider` (dùng cho M4).
+- **Kiểm thử:**
+  - 17 unit test (`npm run test:unit`): ký/kiểm tra chữ ký, URL thanh toán, route verify + IPN (chữ ký sai, số tiền sai, idempotent), validate query chạy qua middleware thật của Medusa.
+  - Store API: đơn COD có `PAWL10` (tổng đúng 154.200₫).
+  - Giả lập VNPay trên backend tạm (key giả, ký kết quả như VNPay): thành công → đơn `captured`; khách huỷ (mã 24) → không tạo đơn, giỏ còn; chữ ký bị sửa → `valid: false`; IPN tới trước → IPN tạo đơn, verify trả `order_id`; IPN lần 2 → `02`. Sau khi thử đã gỡ VNPay khỏi region.
+  - Chrome headless ở 1280px và 375px: COD, VNPay thành công, VNPay huỷ → chuyển COD; không tràn ngang, không lỗi console.
+  - Typecheck, lint, build của 2 app không lỗi.
+- **Lỗi tìm ra khi chạy thật:** validator của Medusa tự gọi `.strict()` trên schema dạng object nên `.catchall()` mất tác dụng và mọi request VNPay bị trả 400. Đã đổi sang `z.record` và thêm test chạy qua middleware thật.
+- **Còn lại:** chạy thử với key sandbox thật + thẻ NCB (người dùng đăng ký VNPay sandbox); IPN thật cần URL public (M5 hoặc tunnel). Link Sign in/Sign up/Account trên header và link chính sách ở bước Review sẽ có trang ở M4–M5.
+
+### 1.6 Thay đổi so với kế hoạch ban đầu (15/10)
 
 | Kế hoạch cũ | Hiện tại | Lý do |
 | --- | --- | --- |
@@ -91,6 +113,8 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 | Font phụ đề "Figma Hand" | **Patrick Hand** (Google Fonts) | Figma Hand không có trên Google Fonts; Patrick Hand cùng phong cách viết tay và hỗ trợ tiếng Việt |
 | Nút bấm màu `#F18926` chữ trắng | Nút dùng `#B8590B` (cùng tông cam, đậm hơn); `#F18926` giữ cho tiêu đề, badge, điểm nhấn | Chữ trắng trên `#F18926` chỉ đạt tương phản 2,5:1; `#B8590B` đạt 4,8:1 (chuẩn WCAG AA) |
 | Mục "My Pet" trên menu (mockup) | Thay bằng nút chuyển Mèo / Chó | Hồ sơ pet thuộc Phase 2 |
+| Giao diện và dữ liệu mẫu tiếng Việt | **Tiếng Anh** (giá VND, địa chỉ Việt Nam) | Bài nộp yêu cầu tiếng Anh |
+| Provider VNPay luôn được đăng ký | Chỉ đăng ký khi `.env` có key VNPay | Máy chưa có key vẫn chạy được với COD; thiếu key thì báo lỗi rõ ràng thay vì im lặng |
 
 ---
 

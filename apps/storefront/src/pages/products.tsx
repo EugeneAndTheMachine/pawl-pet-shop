@@ -40,23 +40,23 @@ export default function ProductsPage() {
   if (handle && tree && !category) return <NotFoundPage />
 
   // Inside the cat or dog tree the species filter is implied
-  const hiddenGroups: TagGroup[] = root?.handle === 'meo' || root?.handle === 'cho' ? ['species'] : []
-  const hiddenOptions = root?.handle === 'meo' ? ['life:puppy'] : root?.handle === 'cho' ? ['life:kitten'] : []
+  const hiddenGroups: TagGroup[] = root?.handle === 'cat' || root?.handle === 'dog' ? ['species'] : []
+  const hiddenOptions = root?.handle === 'cat' ? ['life:puppy'] : root?.handle === 'dog' ? ['life:kitten'] : []
   const title = isSearch
     ? filters.q
-      ? `Kết quả cho “${filters.q}”`
-      : 'Tìm kiếm'
+      ? `Results for “${filters.q}”`
+      : 'Search'
     : category
       ? parent
-        ? `${category.name} cho ${parent.name}`
-        : `Sản phẩm cho ${category.name}`
-      : (collection.data?.title ?? 'Tất cả sản phẩm')
+        ? `${category.name} for ${parent.name}`
+        : `Products for ${category.name}`
+      : (collection.data?.title ?? 'All products')
 
   const crumbs: Crumb[] = isSearch
-    ? [{ label: 'Tìm kiếm' }]
+    ? [{ label: 'Search' }]
     : category
       ? [...(parent ? [{ label: parent.name, to: `/c/${parent.handle}` }] : []), { label: category.name }]
-      : [{ label: collection.data?.title ?? 'Sản phẩm' }]
+      : [{ label: collection.data?.title ?? 'Products' }]
 
   const chips = root && tree ? tree.children(root.id) : []
   // Switching sub-category keeps the filters but starts again at page 1
@@ -68,18 +68,18 @@ export default function ProductsPage() {
   return (
     <div className="container-page py-6 sm:py-8">
       <title>{`${title} – Pawl`}</title>
-      <meta name="description" content={`${title} tại Pawl: thức ăn, cát vệ sinh, snack và phụ kiện cho chó mèo, giá rõ ràng, giao nhanh.`} />
+      <meta name="description" content={`${title} at Pawl: food, litter, treats and accessories for cats and dogs with clear prices and fast delivery.`} />
 
       <Breadcrumb items={crumbs} />
 
       <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
         <h1 className="font-display text-3xl text-brand sm:text-4xl">{title}</h1>
-        {!isLoading && (isSearch ? Boolean(filters.q) : true) && <p className="text-sm text-ink-soft">{count} sản phẩm</p>}
+        {!isLoading && (isSearch ? Boolean(filters.q) : true) && <p className="text-sm text-ink-soft">{count} {count === 1 ? 'product' : 'products'}</p>}
       </div>
 
       {chips.length > 0 && root && (
-        <nav aria-label="Danh mục con" className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
-          <CategoryChip to={chipHref(root.handle)} active={category?.id === root.id} label="Tất cả" />
+        <nav aria-label="Subcategories" className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+          <CategoryChip to={chipHref(root.handle)} active={category?.id === root.id} label="All" />
           {chips.map((child) => (
             <CategoryChip key={child.id} to={chipHref(child.handle)} active={category?.id === child.id} label={child.name} />
           ))}
@@ -87,12 +87,12 @@ export default function ProductsPage() {
       )}
 
       {isSearch && !filters.q ? (
-        <EmptyState icon={<SearchIcon />} title="Bạn muốn tìm gì cho boss?" text="Nhập tên sản phẩm hoặc thương hiệu vào ô tìm kiếm phía trên." />
+        <EmptyState icon={<SearchIcon />} title="What are you looking for?" text="Type a product or brand name into the search box above." />
       ) : (
         <div className="mt-6 grid gap-8 lg:grid-cols-[16rem_1fr]">
-          <aside className="hidden lg:block" aria-label="Bộ lọc">
+          <aside className="hidden lg:block" aria-label="Filters">
             <div className="sticky top-32 rounded-2xl bg-white p-4 shadow-card">
-              <h2 className="mb-1 font-semibold">Bộ lọc</h2>
+              <h2 className="mb-1 font-semibold">Filters</h2>
               <FilterPanel filters={filters} hiddenGroups={hiddenGroups} hiddenOptions={hiddenOptions} />
             </div>
           </aside>
@@ -100,15 +100,15 @@ export default function ProductsPage() {
           <div className="min-w-0 space-y-5">
             <div className="flex items-center justify-between gap-3">
               <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setFiltersOpen(true)}>
-                <FilterIcon /> Bộ lọc{activeCount > 0 && ` (${activeCount})`}
+                <FilterIcon /> Filters{activeCount > 0 && ` (${activeCount})`}
               </Button>
               <label className="ml-auto flex items-center gap-2 text-sm">
-                <span className="hidden text-ink-soft sm:inline">Sắp xếp:</span>
+                <span className="hidden text-ink-soft sm:inline">Sort by:</span>
                 <select
                   value={filters.sort}
                   onChange={(e) => setParams(updateParams(params, { sort: (e.target.value as SortKey) === 'newest' ? null : e.target.value }), { preventScrollReset: true })}
                   className="h-9 rounded-full border border-line bg-white px-3 pr-8 text-sm font-medium"
-                  aria-label="Sắp xếp sản phẩm"
+                  aria-label="Sort products"
                 >
                   {SORT_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
@@ -124,21 +124,21 @@ export default function ProductsPage() {
             {isError ? (
               <EmptyState
                 icon={<AlertIcon />}
-                title="Không tải được sản phẩm"
-                text="Kết nối đang chậm hoặc máy chủ tạm thời gián đoạn."
-                action={<Button onClick={refetch}>Thử lại</Button>}
+                title="We couldn't load the products"
+                text="The connection is slow or the server is temporarily unavailable."
+                action={<Button onClick={refetch}>Try again</Button>}
               />
             ) : isLoading ? (
               <ProductGridSkeleton count={6} className="lg:grid-cols-3" />
             ) : products.length === 0 ? (
               <EmptyState
                 icon={<PawIcon />}
-                title="Chưa có sản phẩm phù hợp"
-                text={activeCount ? 'Thử bỏ bớt một vài bộ lọc nhé.' : 'Danh mục này đang được cập nhật.'}
+                title="No matching products"
+                text={activeCount ? 'Try removing a few filters.' : 'This category is being updated.'}
                 action={
                   activeCount > 0 ? (
                     <Button variant="outline" onClick={() => setParams(clearFilters(params))}>
-                      Xoá bộ lọc
+                      Clear filters
                     </Button>
                   ) : undefined
                 }
@@ -156,15 +156,15 @@ export default function ProductsPage() {
       <Drawer
         open={filtersOpen}
         onClose={() => setFiltersOpen(false)}
-        title="Bộ lọc"
+        title="Filters"
         side="left"
         footer={
           <div className="flex gap-2">
             <Button variant="ghost" className="flex-1" onClick={() => setParams(clearFilters(params))} disabled={!activeCount}>
-              Xoá lọc
+              Clear
             </Button>
             <Button className="flex-1" onClick={() => setFiltersOpen(false)}>
-              Xem {count} sản phẩm
+              Show {count} {count === 1 ? 'product' : 'products'}
             </Button>
           </div>
         }

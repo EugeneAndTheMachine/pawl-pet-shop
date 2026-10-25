@@ -11,7 +11,7 @@ type QuantityInputProps = {
   label?: string
 }
 
-export function QuantityInput({ value, onChange, min = 1, max = 99, size = 'md', disabled, label = 'Số lượng' }: QuantityInputProps) {
+export function QuantityInput({ value, onChange, min = 1, max = 99, size = 'md', disabled, label = 'Quantity' }: QuantityInputProps) {
   const clamp = (n: number) => Math.max(min, Math.min(max, n))
   const btn = cx(
     'grid place-items-center text-ink transition-colors hover:bg-ink/5 disabled:cursor-not-allowed disabled:opacity-40',
@@ -20,7 +20,7 @@ export function QuantityInput({ value, onChange, min = 1, max = 99, size = 'md',
 
   return (
     <div className={cx('inline-flex items-center rounded-full border border-line bg-white', disabled && 'opacity-60')}>
-      <button type="button" className={cx(btn, 'rounded-l-full')} onClick={() => onChange(clamp(value - 1))} disabled={disabled || value <= min} aria-label="Giảm số lượng">
+      <button type="button" className={cx(btn, 'rounded-l-full')} onClick={() => onChange(clamp(value - 1))} disabled={disabled || value <= min} aria-label="Decrease quantity">
         <MinusIcon />
       </button>
       <input
@@ -37,7 +37,7 @@ export function QuantityInput({ value, onChange, min = 1, max = 99, size = 'md',
           if (!Number.isNaN(n)) onChange(clamp(n))
         }}
       />
-      <button type="button" className={cx(btn, 'rounded-r-full')} onClick={() => onChange(clamp(value + 1))} disabled={disabled || value >= max} aria-label="Tăng số lượng">
+      <button type="button" className={cx(btn, 'rounded-r-full')} onClick={() => onChange(clamp(value + 1))} disabled={disabled || value >= max} aria-label="Increase quantity">
         <PlusIcon />
       </button>
     </div>

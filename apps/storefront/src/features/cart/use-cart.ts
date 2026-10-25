@@ -8,9 +8,13 @@ export type CartContextValue = {
   itemCount: number
   isLoading: boolean
   isUpdating: boolean
-  addItem: (variantId: string, quantity: number) => Promise<void>
+  addItem: (variantId: string, quantity: number, options?: { openDrawer?: boolean }) => Promise<boolean>
   updateItem: (lineId: string, quantity: number) => Promise<void>
   removeItem: (lineId: string) => Promise<void>
+  /** Replaces the cached cart after a checkout step updated it on the server */
+  setCart: (cart: HttpTypes.StoreCart | null) => void
+  /** Forgets the cart (after the order is placed) */
+  clearCart: () => void
   isDrawerOpen: boolean
   openDrawer: () => void
   closeDrawer: () => void

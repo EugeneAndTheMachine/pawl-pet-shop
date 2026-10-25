@@ -10,27 +10,27 @@ import { useCart } from '../use-cart'
 
 export function MiniCartDrawer() {
   const { cart, itemCount, isDrawerOpen, closeDrawer, updateItem, removeItem, isUpdating } = useCart()
-  const items = [...(cart?.items ?? [])].sort((a, b) => (a.created_at && b.created_at ? String(b.created_at).localeCompare(String(a.created_at)) : 0))
+  const items = [...(cart?.items ?? [])].sort((a, b) => String(b.created_at ?? '').localeCompare(String(a.created_at ?? '')))
 
   return (
     <Drawer
       open={isDrawerOpen}
       onClose={closeDrawer}
-      title={`Giỏ hàng (${itemCount})`}
+      title={`Your cart (${itemCount})`}
       footer={
         items.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-ink-soft">Tạm tính</span>
+              <span className="text-ink-soft">Subtotal</span>
               <span className="text-xl font-bold text-brand-strong">{formatVND(cart?.item_total)}</span>
             </div>
-            <p className="text-xs text-ink-soft">Giá đã gồm VAT. Phí giao hàng và mã giảm giá được tính ở bước thanh toán.</p>
+            <p className="text-xs text-ink-soft">VAT included. Shipping and discount codes are applied at checkout.</p>
             <div className="grid grid-cols-2 gap-2">
               <ButtonLink to="/cart" variant="outline" onClick={closeDrawer}>
-                Xem giỏ hàng
+                View cart
               </ButtonLink>
               <ButtonLink to="/checkout" onClick={closeDrawer}>
-                Thanh toán
+                Checkout
               </ButtonLink>
             </div>
           </div>
@@ -42,10 +42,10 @@ export function MiniCartDrawer() {
           <span className="grid size-20 place-items-center rounded-full bg-brand-soft text-4xl text-brand">
             <CartIcon />
           </span>
-          <p className="font-semibold">Giỏ hàng đang trống</p>
-          <p className="text-sm text-ink-soft">Boss nhà bạn đang chờ món ngon đấy!</p>
+          <p className="font-semibold">Your cart is empty</p>
+          <p className="text-sm text-ink-soft">Your furry friend is waiting for something tasty!</p>
           <ButtonLink to="/products" onClick={closeDrawer}>
-            Mua sắm ngay
+            Start shopping
           </ButtonLink>
         </div>
       ) : (
@@ -69,9 +69,9 @@ export function MiniCartDrawer() {
                       max={Number.isFinite(max) ? Math.max(max, item.quantity) : 99}
                       disabled={isUpdating}
                       onChange={(quantity) => updateItem(item.id, quantity)}
-                      label={`Số lượng ${item.product_title}`}
+                      label={`Quantity of ${item.product_title}`}
                     />
-                    <span className="text-sm font-bold">{formatVND(item.total ?? item.unit_price * item.quantity)}</span>
+                    <span className="text-sm font-bold">{formatVND(item.unit_price * item.quantity)}</span>
                   </div>
                 </div>
                 <button
@@ -79,7 +79,7 @@ export function MiniCartDrawer() {
                   onClick={() => removeItem(item.id)}
                   disabled={isUpdating}
                   className="self-start rounded-full p-1.5 text-ink-soft hover:bg-danger-soft hover:text-danger"
-                  aria-label={`Xoá ${item.product_title} khỏi giỏ`}
+                  aria-label={`Remove ${item.product_title} from cart`}
                 >
                   <TrashIcon />
                 </button>

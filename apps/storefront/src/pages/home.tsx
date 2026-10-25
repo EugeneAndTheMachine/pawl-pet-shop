@@ -7,7 +7,7 @@ import { Hero } from '../features/home/components/hero'
 import { SubscriptionTeaser } from '../features/home/components/subscription-teaser'
 import { TrustStrip } from '../features/home/components/trust-strip'
 
-const BESTSELLER_HANDLE = 'ban-chay'
+const BESTSELLER_HANDLE = 'best-sellers'
 
 export default function HomePage() {
   const bestsellerCollection = useCollection(BESTSELLER_HANDLE)
@@ -17,24 +17,24 @@ export default function HomePage() {
 
   return (
     <>
-      <title>Pawl – Thức ăn & phụ kiện cho chó mèo, giao trong ngày</title>
+      <title>Pawl – Food & accessories for cats and dogs, delivered same day</title>
       <meta
         name="description"
-        content="Pawl bán thức ăn hạt, pate, cát vệ sinh, snack và phụ kiện chính hãng cho chó mèo. Lọc theo độ tuổi và nhu cầu sức khoẻ, giao nhanh tại TP.HCM và Hà Nội."
+        content="Pawl sells genuine dry food, wet food, litter, treats and accessories for cats and dogs. Filter by life stage and health needs, with fast delivery in Ho Chi Minh City and Hanoi."
       />
       <Hero />
       <TrustStrip />
       <AboutSection />
       <CategoryShowcase />
       <ProductRail
-        title="Bán chạy"
-        subtitle="Những món được các sen tin chọn nhiều nhất"
+        title="Best sellers"
+        subtitle="The picks pet parents trust most"
         products={bestsellers.data}
         isLoading={bestsellerCollection.isLoading || (Boolean(collectionId) && bestsellers.isLoading)}
         viewAllHref={`/products?collection=${BESTSELLER_HANDLE}`}
       />
       <HealthNeeds />
-      <ProductRail title="Sản phẩm mới" subtitle="Vừa cập bến Pawl" products={newest.data} isLoading={newest.isLoading} viewAllHref="/products" />
+      <ProductRail title="New arrivals" subtitle="Just landed at Pawl" products={newest.data} isLoading={newest.isLoading} viewAllHref="/products" />
       <SubscriptionTeaser />
     </>
   )

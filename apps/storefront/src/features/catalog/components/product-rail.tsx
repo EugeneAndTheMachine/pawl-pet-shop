@@ -26,7 +26,7 @@ export function ProductRail({ title, subtitle, products, isLoading, viewAllHref 
         </div>
         {viewAllHref && (
           <Link to={viewAllHref} className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-accent hover:text-accent-dark">
-            Xem tất cả <ChevronRightIcon />
+            View all <ChevronRightIcon />
           </Link>
         )}
       </div>
