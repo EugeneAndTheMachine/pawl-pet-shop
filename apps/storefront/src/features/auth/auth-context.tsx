@@ -11,7 +11,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const customerQuery = useQuery({ queryKey: authKeys.customer, queryFn: getCustomer, staleTime: 5 * 60_000, retry: false })
 
   const afterSignIn = useCallback(async () => {
-    const customer = await queryClient.fetchQuery({ queryKey: authKeys.customer, queryFn: getCustomer })
+    // staleTime 0: the cached value is the guest's null, it must be fetched again with the new session
+    const customer = await queryClient.fetchQuery({ queryKey: authKeys.customer, queryFn: getCustomer, staleTime: 0 })
     // Attach the guest cart to the account so it follows the customer
     if (customer && cart && cart.customer_id !== customer.id) {
       try {

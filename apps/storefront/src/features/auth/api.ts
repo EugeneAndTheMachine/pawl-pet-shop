@@ -30,11 +30,23 @@ export type RegisterInput = { email: string; password: string; first_name: strin
 /** Medusa customer registration: auth identity -> customer record (with the registration token) -> session */
 export async function register(input: RegisterInput): Promise<void> {
   const token = await sdk.auth.register('customer', 'emailpass', { email: input.email, password: input.password })
-  await sdk.store.customer.create(
-    { email: input.email, first_name: input.first_name, last_name: input.last_name, phone: normalizePhone(input.phone) },
-    {},
-    { Authorization: `Bearer ${token}` },
-  )
+  try {
+    await sdk.store.customer.create(
+      {
+        email: input.email,
+        first_name: input.first_name,
+        last_name: input.last_name,
+        phone: normalizePhone(input.phone),
+        // Proof of consent under the Personal Data Protection Law (91/2025/QH15)
+        metadata: { data_consent_at: new Date().toISOString() },
+      },
+      {},
+      { Authorization: `Bearer ${token}` },
+    )
+  } finally {
+    // register() also stores the one-time token in localStorage; sessions do not need it
+    await sdk.client.clearToken()
+  }
   await login(input.email, input.password)
 }
 
@@ -44,6 +56,11 @@ export async function requestPasswordReset(email: string): Promise<void> {
 
 export async function resetPassword(token: string, email: string, password: string): Promise<void> {
   await sdk.auth.updateProvider('customer', 'emailpass', { email, password }, token)
+}
+
+/** Only same-site paths, so ?redirect= cannot send people to another website */
+export function safeRedirect(value: string | null, fallback = '/account'): string {
+  return value && value.startsWith('/') && !value.startsWith('//') ? value : fallback
 }
 
 export function isAuthError(error: unknown): boolean {

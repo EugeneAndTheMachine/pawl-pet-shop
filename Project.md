@@ -1,6 +1,6 @@
 # Pawl — Kế hoạch phát triển và tiến độ
 
-Cập nhật: Oct 25, 2026 · @Viet Nam
+Cập nhật: Oct 26, 2026 · @Viet Nam
 
 Pawl là website B2C bán đồ cho chó mèo (ưu tiên mèo): thức ăn hạt, pate, cát vệ sinh, snack, dinh dưỡng bổ sung, phụ kiện. Điểm khác biệt là **hồ sơ thú cưng → gợi ý sản phẩm** và **đặt hàng định kỳ** 2/4/6 tuần.
 
@@ -22,8 +22,8 @@ Hạn nộp: **23:59 ngày 14/11/2026** (Electronic Commerce CO3027).
 | M0 | Thiết lập: Supabase, backend Medusa, storefront Vite | 19–21/10 | **Xong** (24/10) |
 | M1 | Dữ liệu mẫu: region VN, kho, vận chuyển, danh mục, 20–40 sản phẩm | 22–24/10 | **Xong** (24/10) |
 | M2 | Storefront: trang chủ, danh sách, lọc, chi tiết sản phẩm | 25–30/10 | **Xong** (24/10) |
-| M3 | Giỏ hàng, checkout, COD + thanh toán online (QR, giả lập) | 31/10–05/11 | **Xong** (25/10), chờ duyệt + commit |
-| M4 | Tài khoản: đăng ký, đăng nhập, sổ địa chỉ, lịch sử đơn | 06–09/11 | Chưa bắt đầu |
+| M3 | Giỏ hàng, checkout, COD + thanh toán online (QR, giả lập) | 31/10–05/11 | **Xong** (25/10) |
+| M4 | Tài khoản: đăng ký, đăng nhập, sổ địa chỉ, lịch sử đơn | 06–09/11 | **Xong** (26/10), chờ duyệt + commit |
 | M5 | Trang chính sách, SEO, responsive, bảo mật, `pawl-demo`, tài liệu, test | 10–13/11 | Chưa bắt đầu |
 | — | Dự phòng, nộp bài | 14/11 | — |
 | Phase 2 | Pet, gợi ý, đặt định kỳ, chatbot, GHN, admin extension | Sau M5, nếu còn thời gian | Chưa bắt đầu |
@@ -93,7 +93,23 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
   - Typecheck, lint, build của 2 app không lỗi.
 - **Còn lại:** Link Sign in/Sign up/Account trên header và link chính sách ở bước Review sẽ có trang ở M4–M5. Trạng thái QR hết hạn mới kiểm tra bằng unit test, chưa chạy thử trên trình duyệt (cần chờ 15 phút).
 
-### 1.6 Thay đổi so với kế hoạch ban đầu (15/10)
+### 1.6 M4: tài khoản khách hàng (26/10)
+
+- **Đăng ký** `/register`: họ, tên, email, SĐT (regex SĐT VN), mật khẩu ≥ 8 ký tự + nhập lại, checkbox đồng ý Điều khoản và xử lý dữ liệu cá nhân (bắt buộc). Luồng theo tài liệu Medusa: `sdk.auth.register` → `sdk.store.customer.create` (gửi kèm token đăng ký) → `sdk.auth.login`. Thời điểm đồng ý lưu ở `customer.metadata.data_consent_at` (bằng chứng đồng ý theo Luật BVDLCN). Email đã có tài khoản thì báo và gợi ý đăng nhập / quên mật khẩu. `?email=` điền sẵn email (dùng cho nút "Create account" ở trang xác nhận đơn của Guest).
+- **Đăng nhập** `/login` hỗ trợ `?redirect=`; chỉ nhận đường dẫn nội bộ (bắt đầu bằng `/`, không phải `//`) để tránh open redirect. Sai mật khẩu báo chung "email hoặc mật khẩu không đúng". Đã đăng nhập mà vào `/login`, `/register` thì chuyển thẳng tới đích.
+- **Quên / đặt lại mật khẩu:** `/forgot-password` → `POST /auth/customer/emailpass/reset-password` → subscriber in link ra console → `/reset-password?token=&email=`. Trang luôn báo "nếu email tồn tại…" để không lộ email nào có tài khoản. Token hết hạn sau 15 phút (mặc định của Medusa) và chỉ dùng được một lần (đã kiểm tra: dùng lại trả 401).
+- **Sau đăng nhập / đăng ký:** giỏ hàng hiện tại được gắn vào tài khoản (`sdk.store.cart.transferCart`). Đăng xuất thì xoá session và quên giỏ trên máy.
+- **`/account`** (guard `RequireAuth`, chưa đăng nhập thì chuyển `/login?redirect=…`): sidebar Overview / Orders / Profile / Addresses / Sign out (trên mobile thành thanh tab cuộn ngang).
+  - Overview: lời chào, thông tin cá nhân, địa chỉ mặc định, 3 đơn gần nhất.
+  - Profile: sửa họ tên, SĐT; email chỉ đọc; đổi mật khẩu qua link reset.
+  - Addresses: thêm/sửa (drawer), xoá (xác nhận ngay trên thẻ, không dùng hộp thoại trình duyệt), đặt mặc định; xoá địa chỉ mặc định thì địa chỉ còn lại tự thành mặc định.
+  - Orders: danh sách phân trang 10 đơn (mã, ngày, số món, tổng, trạng thái thanh toán và giao hàng); chi tiết có timeline (Đặt hàng → Đã thanh toán → Đóng gói → Đã gửi → Đã giao; đơn COD thì "Đã thu tiền mặt" ở cuối), địa chỉ, phương thức, sản phẩm, tổng và nút **Buy again** (thêm lại toàn bộ sản phẩm với giá hiện tại; món đã ngừng bán hoặc hết hàng thì bỏ qua và báo).
+- **Checkout** cho Customer: tự điền email/SĐT, chọn địa chỉ trong sổ (mặc định chọn sẵn), có tuỳ chọn lưu địa chỉ mới vào sổ.
+- **Sửa lỗi phát hiện khi test:** sau khi đăng nhập, React Query trả lại giá trị `null` đã cache (chưa gọi lại `/store/customers/me`) nên giao diện không nhận ra đã đăng nhập; đăng xuất từ trang tài khoản bị guard đẩy sang `/login` (React Router chạy điều hướng trong transition) → dùng `navigate('/', { flushSync: true })` và `RouterProvider` từ `react-router/dom`; tràn ngang ở 375px do lưới 1 cột.
+- **Kiểm thử:** Store API bằng `curl` (đăng ký, session, reset mật khẩu, token dùng lại bị từ chối); Chrome headless 27 bước: guard, giỏ Guest giữ nguyên sau đăng ký, F5 giữ đăng nhập, sửa profile, thêm 2 địa chỉ + đổi mặc định, checkout COD bằng địa chỉ đã lưu, đơn hiện trong `/account/orders`, timeline, Buy again, 5 trang tài khoản ở 375px không tràn ngang, đăng xuất, sai mật khẩu, `?redirect=`, chặn redirect ra ngoài, email trùng, quên mật khẩu. Typecheck, lint, build storefront không lỗi.
+- **Còn lại:** link Điều khoản / Chính sách bảo mật ở form đăng ký và checkout trỏ tới `/policies/*`, trang này làm ở M5.
+
+### 1.7 Thay đổi so với kế hoạch ban đầu (15/10)
 
 | Kế hoạch cũ | Hiện tại | Lý do |
 | --- | --- | --- |

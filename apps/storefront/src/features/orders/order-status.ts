@@ -1,4 +1,5 @@
 import type { HttpTypes } from '@medusajs/types'
+import { COD_PROVIDER } from '../checkout/checkout-utils'
 
 type Tone = 'success' | 'warning' | 'danger' | 'neutral'
 
@@ -52,4 +53,24 @@ export function paymentMethodLabel(providerId: string | undefined | null): strin
 export function orderPaymentProvider(order: HttpTypes.StoreOrder): string | undefined {
   const collection = order.payment_collections?.[0]
   return collection?.payments?.[0]?.provider_id ?? collection?.payment_sessions?.[0]?.provider_id
+}
+
+export type OrderStep = { label: string; at: string | Date | null | undefined; done: boolean }
+
+/** Placed → (paid) → packed → shipped → delivered; cash orders are paid last, on delivery */
+export function orderSteps(order: HttpTypes.StoreOrder): OrderStep[] {
+  const fulfillment = order.fulfillments?.[0]
+  const payment = order.payment_collections?.[0]?.payments?.[0]
+  const paid = { label: 'Payment received', at: payment?.captured_at, done: Boolean(payment?.captured_at) || order.payment_status === 'captured' }
+  const isCod = orderPaymentProvider(order) === COD_PROVIDER
+
+  const steps: OrderStep[] = [
+    { label: 'Order placed', at: order.created_at, done: true },
+    ...(isCod ? [] : [paid]),
+    { label: 'Packed', at: fulfillment?.packed_at, done: Boolean(fulfillment?.packed_at) },
+    { label: 'Shipped', at: fulfillment?.shipped_at, done: Boolean(fulfillment?.shipped_at) },
+    { label: 'Delivered', at: fulfillment?.delivered_at, done: Boolean(fulfillment?.delivered_at) },
+    ...(isCod ? [{ ...paid, label: 'Paid in cash' }] : []),
+  ]
+  return steps
 }

@@ -147,8 +147,9 @@ function AccountMenu() {
             className={cx(item, 'w-full text-left text-danger')}
             onClick={async () => {
               setOpen(false)
+              // Leave account pages synchronously first (no transition), otherwise RequireAuth would send us to /login
+              await navigate('/', { flushSync: true })
               await logout()
-              navigate('/')
             }}
           >
             Sign out

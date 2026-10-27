@@ -6,7 +6,7 @@ import { useToast } from '../../components/ui/use-toast'
 import { readStorage, removeStorage, writeStorage } from '../../lib/storage'
 import { useRegion } from '../catalog/hooks'
 import { addLineItem, createCart, deleteLineItem, retrieveCart, updateLineItem } from './api'
-import { CartContext, cartKeys, type CartContextValue } from './use-cart'
+import { CartContext, cartKeys, type CartContextValue, type CartLineInput } from './use-cart'
 
 const CART_ID_KEY = 'pawl_cart_id'
 
@@ -51,24 +51,41 @@ export function CartProvider({ children }: { children: ReactNode }) {
   )
 
   const addMutation = useMutation({
-    mutationFn: async ({ variantId, quantity }: { variantId: string; quantity: number; openDrawer: boolean }) => {
+    mutationFn: async ({ lines }: { lines: CartLineInput[]; openDrawer: boolean }) => {
       let id = cartQuery.data?.id ?? null
       if (!id) {
         if (!region.data) throw new Error('Region not loaded')
         id = (await createCart(region.data.id)).id
       }
+      // Lines that fail (e.g. out of stock) are skipped so the rest still reach the cart
+      const addAll = async (cartId: string) => {
+        let cart: HttpTypes.StoreCart | null = null
+        let failed = 0
+        let lastError: unknown
+        for (const line of lines) {
+          try {
+            cart = await addLineItem(cartId, line.variantId, line.quantity)
+          } catch (error) {
+            failed++
+            lastError = error
+          }
+        }
+        if (!cart) throw lastError
+        return { cart, failed }
+      }
       try {
-        return await addLineItem(id, variantId, quantity)
+        return await addAll(id)
       } catch (error) {
         // Only when the stored cart is gone (completed in another tab): retry once with a fresh cart
         if (!region.data || (await retrieveCart(id))) throw error
         const fresh = await createCart(region.data.id)
-        return addLineItem(fresh.id, variantId, quantity)
+        return addAll(fresh.id)
       }
     },
-    onSuccess: (cart, { openDrawer }) => {
+    onSuccess: ({ cart, failed }, { openDrawer }) => {
       setCart(cart)
       if (openDrawer) setDrawerOpen(true)
+      if (failed > 0) showToast(`${failed} ${failed === 1 ? 'item is' : 'items are'} no longer available and ${failed === 1 ? 'was' : 'were'} not added.`, 'info')
     },
     onError: (error) => showToast(errorMessage(error, 'Could not add the item to your cart. Please try again.'), 'error'),
   })
@@ -94,9 +111,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       isUpdating: addMutation.isPending || updateMutation.isPending || removeMutation.isPending,
       addItem: async (variantId, quantity, options) =>
         addMutation
-          .mutateAsync({ variantId, quantity, openDrawer: options?.openDrawer ?? true })
+          .mutateAsync({ lines: [{ variantId, quantity }], openDrawer: options?.openDrawer ?? true })
           .then(() => true)
           .catch(() => false),
+      addItems: async (lines, options) =>
+        lines.length === 0
+          ? false
+          : addMutation
+              .mutateAsync({ lines, openDrawer: options?.openDrawer ?? true })
+              .then(() => true)
+              .catch(() => false),
       updateItem: async (lineId, quantity) => {
         await updateMutation.mutateAsync({ lineId, quantity }).catch(() => undefined)
       },
