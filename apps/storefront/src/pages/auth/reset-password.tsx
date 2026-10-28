@@ -35,6 +35,7 @@ export default function ResetPasswordPage() {
     return (
       <AuthCard title="Link not valid" subtitle="This password reset link is incomplete. Please request a new one.">
         <title>Reset your password – Pawl</title>
+        <meta name="robots" content="noindex" />
         <ButtonLink to="/forgot-password" className="w-full">
           Request a new link
         </ButtonLink>
@@ -46,6 +47,7 @@ export default function ResetPasswordPage() {
     return (
       <AuthCard title="Password updated">
         <title>Password updated – Pawl</title>
+        <meta name="robots" content="noindex" />
         <div className="space-y-4 text-center text-sm">
           <span className="mx-auto grid size-14 place-items-center rounded-full bg-success-soft text-2xl text-success">
             <CheckIcon />
@@ -74,6 +76,7 @@ export default function ResetPasswordPage() {
       }
     >
       <title>Choose a new password – Pawl</title>
+      <meta name="robots" content="noindex" />
       <form onSubmit={submit} className="space-y-4" noValidate>
         <FormError message={error} />
         <InputField label="New password" type="password" autoComplete="new-password" hint="At least 8 characters." error={formState.errors.password?.message} {...register('password')} />

@@ -35,7 +35,7 @@ function toVnd(amount: InitiatePaymentInput["amount"]): number {
 /**
  * SIMULATED online payment by bank transfer (QR code). No bank or payment gateway is called:
  * the storefront shows a static QR code and POST /store/qr-payments/confirm plays the role of the
- * bank notifying Pawl that the transfer arrived. See README "Payments".
+ * bank notifying Pawl that the transfer arrived. See apps/implementation.md "Thanh toán".
  */
 class QrPaymentProviderService extends AbstractPaymentProvider<QrPaymentOptions> {
   static identifier = "qr"

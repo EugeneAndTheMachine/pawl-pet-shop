@@ -1,6 +1,6 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { HttpTypes } from '@medusajs/types'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import {
   getCollectionByHandle,
   getProductByHandle,
@@ -171,4 +171,20 @@ export function useProduct(handle: string | undefined) {
     queryFn: () => getProductByHandle(handle!, region.data!.id),
     enabled: Boolean(handle && region.data),
   })
+}
+
+/** Starts loading a product page while the pointer is over its card, so opening it feels instant */
+export function usePrefetchProduct() {
+  const queryClient = useQueryClient()
+  const regionId = useRegion().data?.id
+  return useCallback(
+    (handle: string | null | undefined) => {
+      if (!handle || !regionId) return
+      void queryClient.prefetchQuery({
+        queryKey: catalogKeys.product(handle, regionId),
+        queryFn: () => getProductByHandle(handle, regionId),
+      })
+    },
+    [queryClient, regionId],
+  )
 }

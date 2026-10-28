@@ -1,4 +1,4 @@
-import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react'
+import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { cx } from '../../lib/cx'
 
 const control =
@@ -72,6 +72,28 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(funct
           </option>
         ))}
       </select>
+    </FieldWrapper>
+  )
+})
+
+type TextareaFieldProps = TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; error?: string; hint?: string; optional?: boolean }
+
+export const TextareaField = forwardRef<HTMLTextAreaElement, TextareaFieldProps>(function TextareaField(
+  { label, error, hint, optional, className, id, ...props },
+  ref,
+) {
+  const autoId = useId()
+  const textareaId = id ?? autoId
+  return (
+    <FieldWrapper id={textareaId} label={label} error={error} hint={hint} optional={optional}>
+      <textarea
+        ref={ref}
+        id={textareaId}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${textareaId}-error` : undefined}
+        className={cx(control, 'h-auto min-h-32 py-2.5 leading-relaxed', error ? 'border-danger' : 'border-line', className)}
+        {...props}
+      />
     </FieldWrapper>
   )
 })

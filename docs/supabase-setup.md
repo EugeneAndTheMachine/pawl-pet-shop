@@ -8,7 +8,7 @@ Có hai project (gói Free cho phép 2 project đang chạy mỗi organization):
 | Project | Dùng khi |
 |---|---|
 | `pawl-dev` | Cả nhóm dùng chung khi phát triển |
-| `pawl-demo` | Deploy, quay video, thuyết trình (tạo ở M5) |
+| `pawl-demo` | Quay video, thuyết trình, chấm bài |
 
 Làm các bước dưới đây cho từng project.
 
@@ -16,7 +16,7 @@ Làm các bước dưới đây cho từng project.
 
 1. Vào https://supabase.com/dashboard → **New project**.
 2. Tên: `pawl-dev` (hoặc `pawl-demo`).
-3. **Region: Southeast Asia (Singapore)**.
+3. **Region: Southeast Asia (Singapore)**. Đây là region gần Việt Nam nhất: mỗi lượt đi về tới database mất ~35 ms, so với ~105 ms nếu chọn Tokyo. Medusa chạy hàng chục truy vấn nối tiếp cho mỗi thao tác giỏ hàng, nên region quyết định trực tiếp tốc độ của web (xem [setup.md](setup.md#hiệu-năng)). Project `pawl-dev` hiện tại nằm ở Tokyo (`ap-northeast-1`).
 4. **Database password**: nên chỉ gồm chữ và số (ví dụ do nút *Generate* tạo ra rồi bỏ ký tự đặc biệt).
    Nếu có ký tự đặc biệt (`@`, `#`, `/`, `:`…) thì phải percent-encode khi đặt vào URL (`@` → `%40`, `#` → `%23`…).
    Lưu mật khẩu lại, Supabase không hiển thị lại.
@@ -86,6 +86,7 @@ Script này không khởi động Medusa nên chạy được trước khi migra
 
 - 500 MB database và 1 GB storage mỗi project. Ảnh nên nén trước khi upload (WebP/JPEG, cạnh dài ≤ 1200px, dưới 300 KB).
 - **Project tự tạm dừng sau 7 ngày không hoạt động.** Trước buổi demo hoặc chấm bài, vào dashboard kiểm tra project đang chạy; nếu bị dừng thì bấm **Restore**.
+- Session pooler chỉ cho **tối đa 15 kết nối cho cả project**. Mỗi backend Pawl dùng tối đa 5 (`DB_POOL_MAX`), nên chỉ khoảng 2–3 người chạy backend cùng lúc trên một project.
 - Giới hạn có thể thay đổi, xem trang pricing của Supabase.
 
 ## Làm việc nhóm trên `pawl-dev`
@@ -93,3 +94,8 @@ Script này không khởi động Medusa nên chạy được trước khi migra
 - Chỉ một người chạy `seed`.
 - Ai pull code có migration mới thì chạy `npx medusa db:migrate`.
 - Muốn thử nghiệm phá dữ liệu thì tạo project Supabase riêng trong organization cá nhân.
+- Backend có bộ nhớ đệm: sản phẩm, giá do người khác sửa trên cùng database sẽ hiện ra trên máy mình sau tối đa 5 phút.
+
+## Project `pawl-demo`
+
+Làm lại các bước 1–6 với tên `pawl-demo` (region Singapore), rồi làm theo [setup.md, mục 7](setup.md#7-chuyển-sang-project-pawl-demo) để migrate, seed, tạo admin và upload ảnh thật. Trước buổi demo hoặc chấm bài, vào dashboard kiểm tra `pawl-demo` đang chạy (không bị tạm dừng) và Data API vẫn tắt.

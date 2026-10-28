@@ -1,7 +1,7 @@
 import type { HttpTypes } from '@medusajs/types'
 import { FetchError } from '@medusajs/js-sdk'
 import { sdk } from '../../lib/medusa'
-import { normalizePhone } from './schemas'
+import { normalizePhone } from '../../lib/phone'
 
 const CUSTOMER_FIELDS = '*addresses'
 

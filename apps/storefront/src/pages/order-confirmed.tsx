@@ -31,6 +31,7 @@ export default function OrderConfirmedPage() {
   return (
     <div className="container-page max-w-3xl space-y-6 py-8 sm:py-12">
       <title>{`Order #${o.display_id} confirmed – Pawl`}</title>
+      <meta name="robots" content="noindex" />
 
       <section className="rounded-3xl bg-white px-6 py-8 text-center shadow-card sm:px-10">
         <span className="mx-auto mb-4 grid size-16 place-items-center rounded-full bg-success-soft text-3xl text-success">

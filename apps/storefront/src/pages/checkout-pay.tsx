@@ -13,6 +13,7 @@ export default function CheckoutPayPage() {
   return (
     <div className="container-page py-6 sm:py-8">
       <title>Payment – Pawl</title>
+      <meta name="robots" content="noindex" />
       <Breadcrumb items={[{ label: 'Cart', to: '/cart' }, { label: 'Checkout', to: '/checkout' }, { label: 'Payment' }]} />
       <h1 className="mb-6 mt-4 font-display text-3xl text-brand sm:text-4xl">Bank transfer</h1>
 

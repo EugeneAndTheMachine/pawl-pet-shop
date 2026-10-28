@@ -19,8 +19,10 @@ export async function retrieveCart(cartId: string): Promise<HttpTypes.StoreCart 
   }
 }
 
-export async function createCart(regionId: string): Promise<HttpTypes.StoreCart> {
-  const { cart } = await sdk.store.cart.create({ region_id: regionId }, q)
+/** Creating the cart together with its first items saves a whole round of cart workflows */
+export async function createCart(regionId: string, lines: { variantId: string; quantity: number }[] = []): Promise<HttpTypes.StoreCart> {
+  const items = lines.map((line) => ({ variant_id: line.variantId, quantity: line.quantity }))
+  const { cart } = await sdk.store.cart.create({ region_id: regionId, ...(items.length ? { items } : {}) }, q)
   return cart
 }
 

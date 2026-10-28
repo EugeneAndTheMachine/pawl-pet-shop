@@ -3,12 +3,14 @@ import { Link } from 'react-router'
 import { CartIcon, ChevronRightIcon } from '../../../components/ui/icons'
 import { formatVND } from '../../../lib/format'
 import { useCart } from '../../cart/use-cart'
+import { usePrefetchProduct } from '../hooks'
 import { isProductInStock, isVariantInStock, productBrand, productPriceRange, variantOriginalPrice } from '../product-utils'
 import { healthLabels } from '../tag-labels'
 import { ProductImage } from './product-image'
 
 export function ProductCard({ product }: { product: HttpTypes.StoreProduct }) {
   const { addItem, isUpdating } = useCart()
+  const prefetch = usePrefetchProduct()
   const variants = product.variants ?? []
   const { min, max } = productPriceRange(product)
   const inStock = isProductInStock(product)
@@ -20,7 +22,11 @@ export function ProductCard({ product }: { product: HttpTypes.StoreProduct }) {
   const href = `/products/${product.handle}`
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-card transition-shadow hover:shadow-lift">
+    <article
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-card transition-shadow hover:shadow-lift"
+      onPointerEnter={() => prefetch(product.handle)}
+      onFocus={() => prefetch(product.handle)}
+    >
       <Link to={href} className="relative block aspect-square bg-surface p-4" tabIndex={-1} aria-hidden="true">
         <ProductImage src={product.thumbnail} alt="" className="size-full transition-transform duration-300 group-hover:scale-105" />
         {!inStock && (

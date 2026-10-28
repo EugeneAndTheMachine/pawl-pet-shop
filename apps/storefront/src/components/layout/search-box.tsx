@@ -1,9 +1,11 @@
-import { useState, type FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import { cx } from '../../lib/cx'
 import { SearchIcon } from '../ui/icons'
 
 export function SearchBox({ className, onSubmitted }: { className?: string; onSubmitted?: () => void }) {
+  // The header renders two search boxes (desktop and mobile), so each needs its own id for its label
+  const inputId = useId()
   const navigate = useNavigate()
   const location = useLocation()
   const [params] = useSearchParams()
@@ -26,11 +28,11 @@ export function SearchBox({ className, onSubmitted }: { className?: string; onSu
 
   return (
     <form role="search" onSubmit={submit} className={cx('relative', className)}>
-      <label htmlFor="site-search" className="sr-only">
+      <label htmlFor={inputId} className="sr-only">
         Search products
       </label>
       <input
-        id="site-search"
+        id={inputId}
         type="search"
         value={value}
         onChange={(e) => setValue(e.target.value)}

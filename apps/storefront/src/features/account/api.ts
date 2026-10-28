@@ -1,6 +1,7 @@
 import type { HttpTypes } from '@medusajs/types'
 import { sdk } from '../../lib/medusa'
-import { normalizePhone, type AddressValues, type ProfileValues } from '../auth/schemas'
+import { normalizePhone } from '../../lib/phone'
+import type { AddressValues, ProfileValues } from '../auth/schemas'
 
 export async function updateProfile(values: ProfileValues): Promise<HttpTypes.StoreCustomer> {
   const { customer } = await sdk.store.customer.update({ ...values, phone: normalizePhone(values.phone) })

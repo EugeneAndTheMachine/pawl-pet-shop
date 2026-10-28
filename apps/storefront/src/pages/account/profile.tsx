@@ -35,6 +35,7 @@ export default function AccountProfilePage() {
   return (
     <>
       <title>Profile – Pawl</title>
+      <meta name="robots" content="noindex" />
       <AccountHeading title="Profile" />
       <section className="rounded-3xl bg-white p-5 shadow-card sm:p-6">
         <form onSubmit={submit} className="max-w-xl space-y-4" noValidate>

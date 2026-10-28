@@ -20,6 +20,7 @@ export default function AccountOverviewPage() {
   return (
     <>
       <title>My account – Pawl</title>
+      <meta name="robots" content="noindex" />
       <AccountHeading title={`Hi ${customer?.first_name || 'there'}!`} />
 
       <div className="grid gap-4 sm:grid-cols-2">

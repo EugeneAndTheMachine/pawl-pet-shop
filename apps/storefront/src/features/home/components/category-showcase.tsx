@@ -41,7 +41,7 @@ export function CategoryShowcase() {
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-white sm:text-2xl">{card.title}</h3>
                   <p className="mt-1 text-sm text-white/75">{card.text}</p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand">
+                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-light">
                     Shop now <ChevronRightIcon />
                   </span>
                 </div>

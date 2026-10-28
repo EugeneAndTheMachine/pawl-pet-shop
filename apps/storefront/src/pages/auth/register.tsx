@@ -57,6 +57,7 @@ function RegisterForm() {
       }
     >
       <title>Create an account – Pawl</title>
+      <meta name="robots" content="noindex" />
       <form onSubmit={submit} className="space-y-4" noValidate>
         <FormError message={error} />
         {duplicateEmail && (

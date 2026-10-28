@@ -1,6 +1,6 @@
 # Pawl — Kế hoạch phát triển và tiến độ
 
-Cập nhật: Oct 26, 2026 · @Viet Nam
+Cập nhật: Oct 28, 2026 · @Viet Nam
 
 Pawl là website B2C bán đồ cho chó mèo (ưu tiên mèo): thức ăn hạt, pate, cát vệ sinh, snack, dinh dưỡng bổ sung, phụ kiện. Điểm khác biệt là **hồ sơ thú cưng → gợi ý sản phẩm** và **đặt hàng định kỳ** 2/4/6 tuần.
 
@@ -11,7 +11,7 @@ Dự án chia làm hai phase:
 
 Hạn nộp: **23:59 ngày 14/11/2026** (Electronic Commerce CO3027).
 
-> Tài liệu này là kế hoạch tổng thể cho cả nhóm và cho báo cáo. Hướng dẫn cài đặt, lệnh chạy và tài liệu kỹ thuật nằm ở `README.md` và thư mục `docs/`.
+> Tài liệu này là kế hoạch tổng thể cho cả nhóm và cho báo cáo. Hướng dẫn cài đặt, lệnh chạy và tài liệu kỹ thuật nằm ở `README.md`, `apps/implementation.md` và thư mục `docs/`.
 
 ---
 
@@ -23,8 +23,8 @@ Hạn nộp: **23:59 ngày 14/11/2026** (Electronic Commerce CO3027).
 | M1 | Dữ liệu mẫu: region VN, kho, vận chuyển, danh mục, 20–40 sản phẩm | 22–24/10 | **Xong** (24/10) |
 | M2 | Storefront: trang chủ, danh sách, lọc, chi tiết sản phẩm | 25–30/10 | **Xong** (24/10) |
 | M3 | Giỏ hàng, checkout, COD + thanh toán online (QR, giả lập) | 31/10–05/11 | **Xong** (25/10) |
-| M4 | Tài khoản: đăng ký, đăng nhập, sổ địa chỉ, lịch sử đơn | 06–09/11 | **Xong** (26/10), chờ duyệt + commit |
-| M5 | Trang chính sách, SEO, responsive, bảo mật, `pawl-demo`, tài liệu, test | 10–13/11 | Chưa bắt đầu |
+| M4 | Tài khoản: đăng ký, đăng nhập, sổ địa chỉ, lịch sử đơn | 06–09/11 | **Xong** (26/10) |
+| M5 | Trang chính sách, SEO, responsive, bảo mật, `pawl-demo`, tài liệu, test, hiệu năng | 10–13/11 | **Phần code xong** (28/10); còn tạo `pawl-demo` + upload ảnh thật |
 | — | Dự phòng, nộp bài | 14/11 | — |
 | Phase 2 | Pet, gợi ý, đặt định kỳ, chatbot, GHN, admin extension | Sau M5, nếu còn thời gian | Chưa bắt đầu |
 
@@ -109,7 +109,18 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 - **Kiểm thử:** Store API bằng `curl` (đăng ký, session, reset mật khẩu, token dùng lại bị từ chối); Chrome headless 27 bước: guard, giỏ Guest giữ nguyên sau đăng ký, F5 giữ đăng nhập, sửa profile, thêm 2 địa chỉ + đổi mặc định, checkout COD bằng địa chỉ đã lưu, đơn hiện trong `/account/orders`, timeline, Buy again, 5 trang tài khoản ở 375px không tràn ngang, đăng xuất, sai mật khẩu, `?redirect=`, chặn redirect ra ngoài, email trùng, quên mật khẩu. Typecheck, lint, build storefront không lỗi.
 - **Còn lại:** link Điều khoản / Chính sách bảo mật ở form đăng ký và checkout trỏ tới `/policies/*`, trang này làm ở M5.
 
-### 1.7 Thay đổi so với kế hoạch ban đầu (15/10)
+### 1.7 M5: hoàn thiện Phase 1 (28/10)
+
+- **Trang tĩnh:** `/policies/:slug` (Terms, Privacy, Shipping, Returns & Refunds, Payment) viết bằng Markdown trong `src/content/policies/*.md`, hiển thị bằng `react-markdown` + `remark-gfm` (bảng phí ship, đổi trả, dữ liệu thu thập); link nội bộ trong Markdown đi qua router. Chính sách bảo mật theo Luật BVDLCN 91/2025 và Nghị định 356/2025 (dữ liệu thu thập, mục đích, thời hạn lưu, quyền của chủ thể dữ liệu). `/about` (câu chuyện, cam kết, "sắp ra mắt", thông tin doanh nghiệp demo) và `/contact` (thông tin liên hệ + form validate bằng zod, chỉ hiện toast, chưa gửi đi). Slug không tồn tại → trang 404.
+- **SEO:** mọi trang có `<title>` riêng (thẻ `<title>`/`<meta>` của React 19); trang công khai có meta description; bỏ description tĩnh trong `index.html` vì bị trùng 2 thẻ; trang riêng tư (giỏ, checkout, tài khoản, đăng nhập) có `noindex`; thêm `robots.txt`.
+- **Accessibility và responsive:** ô tìm kiếm ở header bị trùng `id` (bản desktop và mobile) nên mất label → dùng `useId`. Chữ cam trên nền xanh không đạt tương phản AA → thêm màu `brand-light` (`#fbc48f`, 4,7:1) cho link đang chọn ở header, "Shop now" ở khối danh mục; nút Mèo/Chó đang chọn đổi sang `brand-strong`. Kiểm tra bằng Chrome headless: 12 trang chính đều có đúng 1 `h1`, mọi ô nhập có label, mọi nút/link có tên, không tràn ngang ở 375 / 768 / 1280 px. Tiêu đề lớn font Pacifico màu `#F18926` trên nền sáng vẫn giữ theo bộ màu thiết kế (tương phản 2,5:1).
+- **Bảo mật (mục 10):** không có secret trong file đã commit; `JWT_SECRET`/`COOKIE_SECRET` là chuỗi ngẫu nhiên 64 ký tự và backend từ chối khởi động ở production nếu còn giá trị mẫu; CORS chỉ mở `localhost:5173`/`9000`; storefront chỉ có 2 biến `VITE_*`; không dùng `dangerouslySetInnerHTML` (Markdown chính sách là nội dung tĩnh của nhóm, `react-markdown` không chèn HTML thô); route custom duy nhất validate bằng zod.
+- **Hiệu năng:** đo được mỗi truy vấn tới `pawl-dev` (Tokyo) mất ~105 ms, tới Singapore ~35 ms; Medusa chạy 23 truy vấn cho một danh sách sản phẩm, ~85 cho một lần thêm vào giỏ. Đã làm: bật Caching Module in-memory (danh sách/chi tiết sản phẩm ~2,5 s → ~0,22 s, TTL 5 phút cho thay đổi từ máy khác), giữ kết nối DB lâu hơn và giới hạn 5 kết nối mỗi backend (gói Free chỉ có 15 cho cả project), tải trước trang sản phẩm khi rê chuột (~2,5 s → ~0,05 s), tạo giỏ kèm sản phẩm trong một request (lần thêm đầu ~13,7 s → ~7,7 s, badge cập nhật ngay), tải trước phương thức giao hàng/thanh toán trong checkout, tách code theo trang (JS ban đầu 759 KB → 585 KB). Các bước ghi trong checkout vẫn mất 5–16 s vì là workflow nhiều truy vấn của Medusa; cách giảm tiếp là đặt `pawl-demo` ở Singapore (nhanh ~3 lần) hoặc deploy backend cùng region với database.
+- **Tài liệu:** `docs/setup.md` (cài đặt chi tiết, chuyển `pawl-dev` ↔ `pawl-demo`, hiệu năng, xử lý sự cố), `docs/api.md` (route QR, provider, luồng checkout và tài khoản), cập nhật `README.md` (tài khoản demo, hiệu năng, giới hạn kết nối) và `docs/supabase-setup.md`.
+- **Kiểm thử:** 12 unit test backend; Store API: đơn COD có `PAWL10` (154.200₫) và đơn QR (chưa trả thì không đặt được, xác nhận 2 lần ra cùng 1 đơn) khi bật cache; Chrome headless: đặt đơn COD qua giao diện, 5 trang chính sách, About, Contact (lỗi validate, gửi thành công, SĐT sai), route lazy, guard tài khoản. Typecheck, lint, build của 2 app không lỗi.
+- **Còn lại (cần thao tác trên dashboard):** tạo project `pawl-demo` ở Singapore, migrate + seed, upload ảnh thật cho sản phẩm ở trang chủ, kiểm tra Data API đã tắt trên `pawl-demo`.
+
+### 1.8 Thay đổi so với kế hoạch ban đầu (15/10)
 
 | Kế hoạch cũ | Hiện tại | Lý do |
 | --- | --- | --- |
@@ -129,6 +140,9 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 | Mục "My Pet" trên menu (mockup) | Thay bằng nút chuyển Mèo / Chó | Hồ sơ pet thuộc Phase 2 |
 | Giao diện và dữ liệu mẫu tiếng Việt | **Tiếng Anh** (giá VND, địa chỉ Việt Nam) | Bài nộp yêu cầu tiếng Anh |
 | Thanh toán online qua VNPay sandbox | **Chuyển khoản QR giả lập** (ảnh QR tĩnh, xác nhận giả lập) | Phạm vi đồ án chỉ cần demo; không phụ thuộc tài khoản merchant, không cần URL public cho IPN; tài liệu ghi rõ là giả lập |
+| Không dùng Redis, không cache ở Phase 1 | **Caching Module của Medusa, bản in-memory** | DB ở xa nên mỗi request sản phẩm mất ~2,5 s; cache in-memory không cần Redis, đổi sang `caching-redis` khi chạy nhiều instance |
+| Chỉ `react-markdown` cho trang chính sách | `react-markdown` + `remark-gfm` | Chính sách cần bảng (phí ship, đổi trả); `remark-gfm` là plugin chuẩn của `react-markdown` |
+| `pawl-demo` dùng khi deploy | Chỉ chạy local với `pawl-demo` | Không deploy ở Phase 1 để tránh xử lý cookie khác domain |
 
 ---
 
@@ -309,9 +323,9 @@ pawl/
 ├── Project.md                    # kế hoạch tổng thể + tiến độ (file này)
 ├── README.md                     # hướng dẫn cài đặt + chạy (Part 4.2)
 ├── docs/
-│   ├── supabase-setup.md         # đã có
-│   ├── setup.md                  # M5
-│   └── api.md                    # M5: route custom + luồng checkout
+│   ├── supabase-setup.md         # tạo pawl-dev / pawl-demo
+│   ├── setup.md                  # cài đặt chi tiết, hiệu năng, xử lý sự cố
+│   └── api.md                    # route custom + luồng checkout
 ├── materials/                    # màu, font, logo, ảnh landing page, tham khảo
 └── apps/
     ├── backend/                  # Medusa v2
@@ -402,7 +416,7 @@ Khi có job chạy định kỳ và deploy nhiều instance thì cân nhắc th�
 | Kiểm soát truy cập | Store API chỉ cho chủ đơn xem đơn; route custom tự kiểm tra chủ sở hữu; `STORE_CORS`/`ADMIN_CORS`/`AUTH_CORS` chỉ mở đúng origin; Admin dùng auth admin có sẵn |
 | Bí mật | Secret chỉ ở `apps/backend/.env`, không commit; không dùng anon/service_role key của Supabase; biến `VITE_*` chỉ chứa giá trị công khai; DB luôn qua SSL; `JWT_SECRET`/`COOKIE_SECRET` sinh ngẫu nhiên; không lưu số thẻ |
 | Toàn vẹn | Chỉ tạo đơn khi phiên thanh toán đã ghi nhận trả đủ đúng số tiền; phiên phải khớp `cart_id` + nội dung chuyển khoản và còn hạn; xác nhận idempotent; validate input route custom bằng zod (strict). Xác nhận thanh toán là giả lập: bản thật cần webhook có chữ ký của ngân hàng |
-| Sẵn sàng | Backup tự động của Supabase; kiểm tra project chưa bị tạm dừng trước demo; React Query cache để giảm tải |
+| Sẵn sàng | Backup tự động của Supabase; kiểm tra project chưa bị tạm dừng trước demo; Caching Module ở backend và React Query cache ở storefront để giảm tải; giới hạn 5 kết nối DB mỗi backend để không vượt 15 kết nối của gói Free |
 | Chống chối bỏ | Log giao dịch thanh toán (mã chuyển khoản, số tiền, kết quả, thời gian); không log mật khẩu, token, connection string |
 | Dữ liệu công khai | Supabase Data API đã tắt; bucket `pawl-media` public nên chỉ chứa ảnh công khai |
 

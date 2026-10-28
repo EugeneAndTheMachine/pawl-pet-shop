@@ -18,6 +18,7 @@ export default function AccountOrdersPage() {
   return (
     <>
       <title>My orders – Pawl</title>
+      <meta name="robots" content="noindex" />
       <AccountHeading title="My orders">{orders.data && orders.data.count > 0 && <p className="text-sm text-ink-soft">{orders.data.count} orders</p>}</AccountHeading>
 
       {orders.isPending ? (

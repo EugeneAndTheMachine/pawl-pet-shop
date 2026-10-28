@@ -10,7 +10,7 @@ import { CartIcon, CatIcon, ChevronDownIcon, DogIcon, MenuIcon, UserIcon } from 
 import { SearchBox } from './search-box'
 
 const navLink = ({ isActive }: { isActive: boolean }) =>
-  cx('rounded-full px-3 py-2 text-sm font-semibold transition-colors', isActive ? 'text-brand' : 'text-white hover:text-brand')
+  cx('rounded-full px-3 py-2 text-sm font-semibold transition-colors', isActive ? 'text-brand-light' : 'text-white hover:text-brand-light')
 
 export function Header() {
   const { itemCount, openDrawer } = useCart()
@@ -70,7 +70,7 @@ function SpeciesLink({ to, active, icon, label }: { to: string; active: boolean;
     <Link
       to={to}
       aria-current={active ? 'page' : undefined}
-      className={cx('flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold transition-colors', active ? 'bg-brand text-white' : 'text-white/90 hover:text-white')}
+      className={cx('flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold transition-colors', active ? 'bg-brand-strong text-white' : 'text-white/90 hover:text-white')}
     >
       <span className="text-base">{icon}</span>
       {label}

@@ -55,7 +55,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       let id = cartQuery.data?.id ?? null
       if (!id) {
         if (!region.data) throw new Error('Region not loaded')
-        id = (await createCart(region.data.id)).id
+        // First add: one request creates the cart with its items. If one of them cannot be added
+        // (e.g. out of stock) the whole request fails, so fall back to adding the lines one by one.
+        try {
+          return { cart: await createCart(region.data.id, lines), failed: 0 }
+        } catch {
+          id = (await createCart(region.data.id)).id
+        }
       }
       // Lines that fail (e.g. out of stock) are skipped so the rest still reach the cart
       const addAll = async (cartId: string) => {
@@ -103,10 +109,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   })
 
   const cart = cartQuery.data ?? null
+  // Cart updates take a few seconds (many database round trips), so the badge counts items being added right away
+  const pendingCount = addMutation.isPending ? (addMutation.variables?.lines ?? []).reduce((sum, line) => sum + line.quantity, 0) : 0
   const value = useMemo<CartContextValue>(
     () => ({
       cart,
-      itemCount: (cart?.items ?? []).reduce((sum, item) => sum + item.quantity, 0),
+      itemCount: (cart?.items ?? []).reduce((sum, item) => sum + item.quantity, 0) + pendingCount,
       isLoading: cartQuery.isLoading,
       isUpdating: addMutation.isPending || updateMutation.isPending || removeMutation.isPending,
       addItem: async (variantId, quantity, options) =>
@@ -133,7 +141,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       openDrawer: () => setDrawerOpen(true),
       closeDrawer: () => setDrawerOpen(false),
     }),
-    [cart, cartQuery.isLoading, addMutation, updateMutation, removeMutation, setCart, forgetCart, isDrawerOpen],
+    [cart, pendingCount, cartQuery.isLoading, addMutation, updateMutation, removeMutation, setCart, forgetCart, isDrawerOpen],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

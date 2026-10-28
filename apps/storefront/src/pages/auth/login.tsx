@@ -54,6 +54,7 @@ function LoginForm() {
       }
     >
       <title>Sign in – Pawl</title>
+      <meta name="robots" content="noindex" />
       <form onSubmit={submit} className="space-y-4" noValidate>
         <FormError message={error} />
         <InputField label="Email" type="email" autoComplete="email" error={formState.errors.email?.message} {...register('email')} />

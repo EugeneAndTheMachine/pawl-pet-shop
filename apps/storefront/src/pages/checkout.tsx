@@ -16,6 +16,7 @@ import { ReviewStep } from '../features/checkout/components/review-step'
 import { ShippingStep } from '../features/checkout/components/shipping-step'
 import { StepSection } from '../features/checkout/components/step-section'
 import { completedSteps, contactPhone, firstIncompleteStep, selectedProvider, STEPS, type StepKey } from '../features/checkout/checkout-utils'
+import { usePrefetchCheckoutOptions } from '../features/checkout/queries'
 import { paymentMethodLabel } from '../features/orders/order-status'
 import { formatVND } from '../lib/format'
 
@@ -37,6 +38,7 @@ export default function CheckoutPage() {
   const [params] = useSearchParams()
   // A step the shopper chose to edit; ?step= lets the payment result page send them back to "Payment"
   const [editing, setEditing] = useState<StepKey | null>(() => (isStep(params.get('step')) ? (params.get('step') as StepKey) : null))
+  usePrefetchCheckoutOptions(cart)
 
   if (isLoading || auth.isLoading) {
     return (
@@ -136,6 +138,7 @@ function CheckoutShell({ children }: { children: ReactNode }) {
   return (
     <div className="container-page py-6 sm:py-8">
       <title>Checkout – Pawl</title>
+      <meta name="robots" content="noindex" />
       <Breadcrumb items={[{ label: 'Cart', to: '/cart' }, { label: 'Checkout' }]} />
       <h1 className="mb-6 mt-4 font-display text-3xl text-brand sm:text-4xl">Checkout</h1>
       {children}

@@ -36,6 +36,7 @@ export default function ForgotPasswordPage() {
     return (
       <AuthCard title="Check your inbox" footer={footer}>
         <title>Reset your password – Pawl</title>
+        <meta name="robots" content="noindex" />
         <div className="space-y-4 text-center text-sm">
           <span className="mx-auto grid size-14 place-items-center rounded-full bg-accent-soft text-2xl text-accent">
             <MailIcon />
@@ -55,6 +56,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthCard title="Forgot password?" subtitle="Enter the email you signed up with and we will send you a reset link." footer={footer}>
       <title>Reset your password – Pawl</title>
+      <meta name="robots" content="noindex" />
       <form onSubmit={submit} className="space-y-4" noValidate>
         <FormError message={error} />
         <InputField label="Email" type="email" autoComplete="email" error={formState.errors.email?.message} {...register('email')} />

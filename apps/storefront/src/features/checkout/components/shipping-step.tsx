@@ -6,13 +6,11 @@ import { FormError } from '../../../components/ui/field'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { cx } from '../../../lib/cx'
 import { formatVND } from '../../../lib/format'
-import { listShippingOptions, setShippingMethod } from '../../cart/api'
+import { setShippingMethod } from '../../cart/api'
+import { shippingOptionsQuery } from '../queries'
 
 export function ShippingStep({ cart, onSaved }: { cart: HttpTypes.StoreCart; onSaved: (cart: HttpTypes.StoreCart) => void }) {
-  const options = useQuery({
-    queryKey: ['shipping-options', cart.id, cart.shipping_address?.province],
-    queryFn: () => listShippingOptions(cart.id),
-  })
+  const options = useQuery(shippingOptionsQuery(cart.id, cart.shipping_address?.province))
   const [selected, setSelected] = useState<string | undefined>(cart.shipping_methods?.[0]?.shipping_option_id ?? undefined)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)

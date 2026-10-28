@@ -5,9 +5,10 @@ import { Button } from '../../../components/ui/button'
 import { FormError } from '../../../components/ui/field'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { cx } from '../../../lib/cx'
-import { initiatePayment, listPaymentProviders } from '../../cart/api'
+import { initiatePayment } from '../../cart/api'
 import { paymentMethodLabel } from '../../orders/order-status'
 import { selectedProvider } from '../checkout-utils'
+import { paymentProvidersQuery } from '../queries'
 
 const DESCRIPTIONS: Record<string, string> = {
   pp_system_default: 'Pay in cash when the courier delivers your order.',
@@ -16,11 +17,7 @@ const DESCRIPTIONS: Record<string, string> = {
 
 
 export function PaymentStep({ cart, onSaved }: { cart: HttpTypes.StoreCart; onSaved: (cart: HttpTypes.StoreCart) => void }) {
-  const providers = useQuery({
-    queryKey: ['payment-providers', cart.region_id],
-    queryFn: () => listPaymentProviders(cart.region_id!),
-    enabled: Boolean(cart.region_id),
-  })
+  const providers = useQuery(paymentProvidersQuery(cart.region_id))
   const [selected, setSelected] = useState<string | undefined>(selectedProvider(cart))
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)

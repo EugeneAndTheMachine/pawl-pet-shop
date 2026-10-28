@@ -1,15 +1,10 @@
 import { z } from 'zod'
+import { VN_PHONE, normalizePhone } from '../../lib/phone'
 import { VN_PROVINCES } from '../../lib/vn-provinces'
 
-// Vietnamese mobile numbers: 0 or +84 followed by a 9-digit number starting with 3, 5, 7, 8 or 9
-export const VN_PHONE = /^(0|\+84)(3|5|7|8|9)\d{8}$/
+export { VN_PHONE, normalizePhone }
 
 const email = z.string().trim().min(1, 'Please enter your email.').email('Please enter a valid email address.')
-/** Removes spaces, dots and dashes people type in phone numbers */
-export function normalizePhone(value: string): string {
-  return value.replace(/[\s.-]/g, '')
-}
-
 const phone = z
   .string()
   .trim()

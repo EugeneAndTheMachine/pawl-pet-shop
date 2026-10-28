@@ -6,6 +6,7 @@
   --color-brand-strong: #b8590b; /* buttons and small orange text (AA contrast on white/cream) */
   --color-brand-deep: #9a4a09;
   --color-brand-soft: #fde8d2;
+  --color-brand-light: #fbc48f;  /* orange text on navy backgrounds (AA contrast on accent) */
   --color-accent: #395686;       /* sub-backgrounds that need highlighting, header */
   --color-accent-dark: #2e4770;
   --color-accent-deep: #233858;
@@ -30,6 +31,7 @@
   --animate-slide-in-right: slide-in-right 220ms ease-out;
   --animate-slide-in-left: slide-in-left 220ms ease-out;
   --animate-fade-in: fade-in 180ms ease-out;
+  --animate-progress: progress 1s ease-in-out infinite;
 
   @keyframes slide-in-right {
     from { transform: translateX(100%); }
@@ -42,6 +44,10 @@
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
+  }
+  @keyframes progress {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(300%); }
   }
 }
 

@@ -37,6 +37,7 @@ export default function AccountOrderDetailPage() {
         {back}
         <div className="rounded-3xl bg-white p-8 text-center shadow-card">
           <title>Order not found – Pawl</title>
+          <meta name="robots" content="noindex" />
           <h1 className="text-lg font-semibold">Order not found</h1>
           <p className="mt-1 text-sm text-ink-soft">This order does not exist or belongs to another account.</p>
         </div>
@@ -49,6 +50,7 @@ export default function AccountOrderDetailPage() {
   return (
     <>
       <title>{`Order #${o.display_id} – Pawl`}</title>
+      <meta name="robots" content="noindex" />
       {back}
       <div className="space-y-5">
         <section className="flex flex-wrap items-start justify-between gap-4 rounded-3xl bg-white p-5 shadow-card sm:p-6">

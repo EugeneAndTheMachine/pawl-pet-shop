@@ -42,6 +42,7 @@ export default function AccountAddressesPage() {
   return (
     <>
       <title>Addresses – Pawl</title>
+      <meta name="robots" content="noindex" />
       <AccountHeading title="Addresses">
         {addresses.length > 0 && (
           <Button size="sm" onClick={() => setEditing('new')}>

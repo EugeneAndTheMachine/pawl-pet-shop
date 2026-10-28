@@ -18,6 +18,7 @@ export default function CartPage() {
   return (
     <div className="container-page py-6 sm:py-8">
       <title>Your cart – Pawl</title>
+      <meta name="robots" content="noindex" />
       <Breadcrumb items={[{ label: 'Cart' }]} />
       <h1 className="mt-4 font-display text-3xl text-brand sm:text-4xl">Your cart</h1>
 
