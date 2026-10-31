@@ -26,7 +26,7 @@ Hạn nộp: **23:59 ngày 14/11/2026** (Electronic Commerce CO3027).
 | M4 | Tài khoản: đăng ký, đăng nhập, sổ địa chỉ, lịch sử đơn | 06–09/11 | **Xong** (26/10) |
 | M5 | Trang chính sách, SEO, responsive, bảo mật, `pawl-demo`, tài liệu, test, hiệu năng | 10–13/11 | **Phần code xong** (28/10); còn tạo `pawl-demo` + upload ảnh thật |
 | — | Dự phòng, nộp bài | 14/11 | — |
-| Phase 2 | Pet, gợi ý, đặt định kỳ, chatbot, GHN, admin extension | Sau M5, nếu còn thời gian | Chưa bắt đầu |
+| Phase 2 | Pet, gợi ý, đặt định kỳ, chatbot, GHN, admin extension | Sau M5, nếu còn thời gian | **Đang làm**: chatbot Gemini xong phần code (31/10, [docs/chatbot.md](docs/chatbot.md)); các phần khác chưa bắt đầu |
 
 Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy thử theo checklist, báo cáo, commit. Chậm tiến độ thì cắt bớt phần trang trí, không dời các yêu cầu bắt buộc.
 

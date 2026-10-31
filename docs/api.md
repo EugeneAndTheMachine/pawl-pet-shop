@@ -49,6 +49,40 @@ Mọi bước đều ghi log qua logger của Medusa (mã chuyển khoản, số
 
 Nâng cấp lên thanh toán thật: thay route này bằng webhook có chữ ký của ngân hàng hoặc cổng thanh toán (VietQR/PayOS, VNPay, MoMo…), kiểm tra chữ ký và số tiền rồi gọi đúng logic ở bước 4–5.
 
+### `POST /store/chat`
+
+Chatbot "Pawl Assistant" (Gemini + function calling chỉ đọc). Không bắt buộc đăng nhập; nếu có session cookie của khách thì trợ lý xem được đơn của chính khách đó. Chi tiết: [chatbot.md](chatbot.md).
+
+File: `apps/backend/src/api/store/chat/route.ts`, logic ở `src/lib/chat/`.
+
+Request:
+
+```json
+{
+  "messages": [
+    { "role": "user", "text": "Hạt cho mèo bị tiết niệu?" },
+    { "role": "model", "text": "..." },
+    { "role": "user", "text": "Loại nào dưới 300k?" }
+  ],
+  "cart_id": "cart_01J..."
+}
+```
+
+| Trường | Ràng buộc |
+|---|---|
+| `messages` | 1–30 tin, `role` là `user` hoặc `model`, `text` 1–1.000 ký tự, tin cuối là của `user`. Backend chỉ gửi 12 tin cuối cho Gemini |
+| `cart_id` | Không bắt buộc; `cart_` + 26 ký tự ULID |
+
+Response:
+
+| HTTP | Body |
+|---|---|
+| 200 | `{ "reply": "Markdown…", "products": [{ "handle", "title", "brand", "thumbnail", "price_min", "price_max", "in_stock" }] }` (thẻ cho các sản phẩm được nhắc tới trong câu trả lời) |
+| 400 | Body sai định dạng |
+| 429 | `{ "code": "rate_limited" }` (khách gửi quá nhanh, có header `Retry-After`) hoặc `{ "code": "busy" }` (hết quota Gemini hoặc model đang quá tải, Google trả 503) |
+| 502 | `{ "code": "chat_failed" }` Gemini lỗi hoặc quá 45 giây |
+| 503 | `{ "code": "chat_unavailable" }` chưa cấu hình `GEMINI_API_KEY` |
+
 ## 2. Payment provider `pp_qr_qr`
 
 File: `apps/backend/src/modules/qr-payment/service.ts`, đăng ký trong `medusa-config.ts` (module `@medusajs/medusa/payment`, `id: "qr"`, `options.expiryMinutes = 15`).

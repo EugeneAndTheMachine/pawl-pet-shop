@@ -53,6 +53,7 @@ Giao diện storefront bằng tiếng Anh, giá tính bằng VND (đã gồm VAT
 | Thanh toán | Thanh toán khi nhận hàng (COD) và chuyển khoản qua mã QR (giả lập) |
 | Tài khoản | Đăng ký, đăng nhập, quên/đặt lại mật khẩu, thông tin cá nhân, sổ địa chỉ, lịch sử và chi tiết đơn, "Mua lại" |
 | Nội dung | Chính sách (điều khoản, bảo mật, vận chuyển, đổi trả, thanh toán), giới thiệu, liên hệ, trang 404 |
+| Trợ lý AI (Phase 2) | Chatbot "Pawl Assistant" dùng Gemini: tìm và so sánh sản phẩm theo nhu cầu của thú cưng, tính khẩu phần ăn, tra cứu đơn của chính khách đã đăng nhập, trả lời về giao hàng, thanh toán, đổi trả. Chỉ đọc dữ liệu qua Medusa, không truy cập database trực tiếp ([docs/chatbot.md](docs/chatbot.md)) |
 | Trải nghiệm | Responsive từ 375px, accessibility cơ bản (label, focus, tương phản AA), SEO theo từng trang |
 
 ### Quản trị (Medusa Admin)
@@ -194,11 +195,12 @@ Luồng QR **là giả lập**: trang `/checkout/pay` hiển thị ảnh QR tĩn
 - CORS chỉ mở cho đúng origin; backend từ chối khởi động ở production nếu secret còn là giá trị mẫu.
 - Body của route tự viết được validate bằng Zod; thanh toán QR kiểm tra phiên, giỏ hàng, nội dung chuyển khoản, hạn và chống tạo đơn trùng.
 - Trang tài khoản, giỏ hàng và checkout được đánh dấu `noindex`.
+- Chatbot: key Gemini chỉ ở backend; Gemini chỉ gọi được các hàm chỉ-đọc do backend định nghĩa, mã khách hàng lấy từ session chứ không từ câu hỏi; giới hạn số tin nhắn; không ghi log nội dung chat.
 
 ## Kiểm thử
 
 ```bash
-cd apps/backend && npm run test:unit       # 12 test: phiên thanh toán QR, hạn, xác nhận, idempotency, validate body
+cd apps/backend && npm run test:unit       # 31 test: thanh toán QR (phiên, hạn, xác nhận, idempotency) và chatbot (tìm kiếm, khẩu phần, vòng gọi tool, validate, rate limit)
 cd apps/storefront && npm run lint && npm run build
 ```
 
@@ -211,12 +213,13 @@ Kịch bản kiểm tra thủ công (COD, QR, mã giảm giá, tài khoản): [d
 | [docs/supabase-setup.md](docs/supabase-setup.md) | Tạo và cấu hình project Supabase (`pawl-dev`, `pawl-demo`) |
 | [docs/setup.md](docs/setup.md) | Cài đặt chi tiết, chuyển sang database demo, hiệu năng, xử lý sự cố |
 | [docs/api.md](docs/api.md) | Route tự viết, payment provider QR, luồng checkout và tài khoản qua Store API |
+| [docs/chatbot.md](docs/chatbot.md) | Chatbot Gemini: kiến trúc, các tool, bảo mật, cách lấy API key và chạy thử |
 | [apps/implementation.md](apps/implementation.md) | Chi tiết triển khai: dữ liệu mẫu, thanh toán giả lập, hiệu năng, các lưu ý khi làm việc nhóm |
 
 ## Lộ trình
 
 - [x] **Phase 1** — cửa hàng hoàn chỉnh: catalog, giỏ hàng, checkout, COD + QR giả lập, tài khoản, chính sách, SEO
-- [ ] **Phase 2** — hồ sơ thú cưng, gợi ý sản phẩm theo hồ sơ, đặt hàng định kỳ 2/4/6 tuần, tích hợp GHN, chatbot hỗ trợ
+- [ ] **Phase 2** — [x] chatbot Gemini · [ ] hồ sơ thú cưng · [ ] gợi ý sản phẩm theo hồ sơ · [ ] đặt hàng định kỳ 2/4/6 tuần · [ ] tích hợp GHN
 
 ---
 

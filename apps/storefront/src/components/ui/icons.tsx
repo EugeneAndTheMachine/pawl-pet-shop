@@ -94,6 +94,12 @@ export const MailIcon = (p: IconProps) => (
 export const MapPinIcon = (p: IconProps) => (
   <Svg {...p}><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11" /><circle cx="12" cy="10" r="2.5" /></Svg>
 )
+export const ChatIcon = (p: IconProps) => (
+  <Svg {...p}><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12Z" /><path d="M8.5 12h.01M12 12h.01M15.5 12h.01" strokeWidth={2.6} /></Svg>
+)
+export const SendIcon = (p: IconProps) => (
+  <Svg {...p}><path d="M5 12h13M12 5l7 7-7 7" /></Svg>
+)
 
 // Filled shapes
 export function PawIcon(p: IconProps) {

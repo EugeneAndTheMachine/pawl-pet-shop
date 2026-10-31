@@ -1,5 +1,6 @@
 import { Outlet, ScrollRestoration, useNavigation } from 'react-router'
 import { MiniCartDrawer } from '../../features/cart/components/mini-cart-drawer'
+import { ChatLauncher } from '../../features/chat/components/chat-launcher'
 import { Footer } from './footer'
 import { Header } from './header'
 
@@ -16,6 +17,7 @@ export function RootLayout() {
       </main>
       <Footer />
       <MiniCartDrawer />
+      <ChatLauncher />
       <ScrollRestoration />
     </div>
   )
