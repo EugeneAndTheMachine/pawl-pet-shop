@@ -214,6 +214,7 @@ Kịch bản kiểm tra thủ công (COD, QR, mã giảm giá, tài khoản): [d
 | [docs/setup.md](docs/setup.md) | Cài đặt chi tiết, chuyển sang database demo, hiệu năng, xử lý sự cố |
 | [docs/api.md](docs/api.md) | Route tự viết, payment provider QR, luồng checkout và tài khoản qua Store API |
 | [docs/chatbot.md](docs/chatbot.md) | Chatbot Gemini: kiến trúc, các tool, bảo mật, cách lấy API key và chạy thử |
+| [docs/deploy.md](docs/deploy.md) | Deploy lên Internet: storefront trên Vercel (proxy API cùng domain), backend trên Azure App Service (deploy bằng GitHub Actions), các bước kiểm tra và sự cố |
 | [apps/implementation.md](apps/implementation.md) | Chi tiết triển khai: dữ liệu mẫu, thanh toán giả lập, hiệu năng, các lưu ý khi làm việc nhóm |
 
 ## Lộ trình

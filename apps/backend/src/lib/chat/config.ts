@@ -12,6 +12,8 @@ export type ChatConfig = {
   /** Model ⇄ tool round trips allowed for one answer before the model must reply in text */
   maxToolRounds: number
   timeoutMs: number
+  /** Header holding the visitor IP when behind a proxy (e.g. x-forwarded-for); empty = req.ip */
+  clientIpHeader: string | undefined
 }
 
 const THINKING_LEVELS: ThinkingLevelName[] = ["minimal", "low", "medium", "high"]
@@ -31,5 +33,6 @@ export function readChatConfig(env: NodeJS.ProcessEnv = process.env): ChatConfig
     rateWindowMs: positiveInt(env.CHAT_RATE_WINDOW_MINUTES, 10) * 60_000,
     maxToolRounds: 5,
     timeoutMs: 45_000,
+    clientIpHeader: env.CHAT_CLIENT_IP_HEADER?.trim().toLowerCase() || undefined,
   }
 }

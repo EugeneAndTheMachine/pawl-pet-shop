@@ -1,0 +1,57 @@
+# Builds the Medusa backend and deploys it to Azure App Service (Linux, Node 22).
+# Setup: docs/deploy.md. Needs the repository variable AZURE_WEBAPP_NAME and the secret AZURE_WEBAPP_PUBLISH_PROFILE;
+# without them the build still runs (to catch errors) and the deploy step is skipped.
+name: Deploy backend to Azure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/backend/**"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend
+    env:
+      CAN_DEPLOY: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE != '' && vars.AZURE_WEBAPP_NAME != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Compiles the server and the Admin dashboard into .medusa/server (no database access needed)
+      - name: Build
+        run: npm run build
+
+      # Same steps as the Medusa deployment guide: the built app gets its own node_modules
+      - name: Install dependencies of the built app
+        working-directory: apps/backend/.medusa/server
+        run: npm ci
+
+      - name: Deploy to Azure App Service
+        if: env.CAN_DEPLOY == 'true'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: apps/backend/.medusa/server
+
+      - name: Deploy skipped
+        if: env.CAN_DEPLOY != 'true'
+        run: echo "::notice::Build OK. Deploy skipped - set the AZURE_WEBAPP_NAME variable and AZURE_WEBAPP_PUBLISH_PROFILE secret (docs/deploy.md)."
