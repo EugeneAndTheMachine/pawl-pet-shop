@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/store/:path*", "destination": "https://YOUR-BACKEND.azurewebsites.net/store/:path*" },
-    { "source": "/auth/:path*", "destination": "https://YOUR-BACKEND.azurewebsites.net/auth/:path*" },
+    { "source": "/store/:path*", "destination": "https://pawl-api-d7e9g6hjbgccehg6.eastasia-01.azurewebsites.net/store/:path*" },
+    { "source": "/auth/:path*", "destination": "https://pawl-api-d7e9g6hjbgccehg6.eastasia-01.azurewebsites.net/auth/:path*" },
     { "source": "/((?!assets/).*)", "destination": "/index.html" }
   ],
   "headers": [
