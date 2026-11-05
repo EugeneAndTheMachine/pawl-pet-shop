@@ -11,7 +11,7 @@ export function ChatProductCard({ product, onNavigate }: { product: Card; onNavi
       onClick={onNavigate}
       className="flex items-center gap-3 rounded-xl border border-line bg-white p-2 transition-colors hover:border-brand"
     >
-      <ProductImage src={product.thumbnail} alt="" className="size-14 shrink-0 rounded-lg bg-surface" />
+      <ProductImage src={product.thumbnail} alt="" className="size-14 shrink-0 rounded-lg bg-white p-1" />
       <span className="min-w-0 flex-1">
         {product.brand && <span className="block text-[11px] font-semibold uppercase tracking-wide text-ink-soft">{product.brand}</span>}
         <span className="line-clamp-2 text-sm font-semibold leading-snug">{product.title}</span>

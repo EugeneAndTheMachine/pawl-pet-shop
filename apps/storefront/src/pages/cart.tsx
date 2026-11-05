@@ -47,7 +47,7 @@ export default function CartPage() {
                 const max = Math.min(99, variantAvailable(item.variant ?? undefined))
                 return (
                   <li key={item.id} className="flex gap-4 py-4">
-                    <Link to={`/products/${item.product_handle}`} className="size-20 shrink-0 overflow-hidden rounded-2xl bg-surface p-2 sm:size-24">
+                    <Link to={`/products/${item.product_handle}`} className="size-20 shrink-0 overflow-hidden rounded-2xl border border-line/60 bg-white p-2 sm:size-24">
                       <ProductImage src={item.thumbnail} alt={item.product_title ?? ''} className="size-full" />
                     </Link>
                     <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center">

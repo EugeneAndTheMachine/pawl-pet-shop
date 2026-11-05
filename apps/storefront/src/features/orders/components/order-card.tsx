@@ -18,7 +18,7 @@ export function OrderCard({ order }: { order: HttpTypes.StoreOrder }) {
     >
       <div className="flex -space-x-3">
         {items.slice(0, 3).map((item) => (
-          <div key={item.id} className="size-14 overflow-hidden rounded-xl border-2 border-white bg-surface p-1">
+          <div key={item.id} className="size-14 overflow-hidden rounded-xl border-2 border-white bg-white p-1">
             <ProductImage src={item.thumbnail} alt="" className="size-full" />
           </div>
         ))}

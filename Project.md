@@ -120,7 +120,13 @@ Mỗi milestone kết thúc bằng: typecheck và build không lỗi, chạy th�
 - **Kiểm thử:** 12 unit test backend; Store API: đơn COD có `PAWL10` (154.200₫) và đơn QR (chưa trả thì không đặt được, xác nhận 2 lần ra cùng 1 đơn) khi bật cache; Chrome headless: đặt đơn COD qua giao diện, 5 trang chính sách, About, Contact (lỗi validate, gửi thành công, SĐT sai), route lazy, guard tài khoản. Typecheck, lint, build của 2 app không lỗi.
 - **Còn lại (cần thao tác trên dashboard):** tạo project `pawl-demo` ở Singapore, migrate + seed, upload ảnh thật cho sản phẩm ở trang chủ, kiểm tra Data API đã tắt trên `pawl-demo`.
 
-### 1.8 Thay đổi so với kế hoạch ban đầu (15/10)
+### 1.8 Catalog sản phẩm thật (05/11)
+
+- Thay 36 sản phẩm mẫu bằng **44 sản phẩm thật** soạn từ ảnh và mô tả trong `materials/Items` (22 cho mèo, 15 cho chó, 7 dùng chung nằm ở cả hai nhánh danh mục). Mô tả được viết gọn lại bằng tiếng Anh, bỏ các câu quảng cáo sai hoặc không kiểm chứng được (ví dụ "chữa suy thận"); tag `species/life/health/free/form` trích từ mô tả, vẫn theo quy ước mục 6.3. 78 biến thể, giá VND và tồn kho đặt cho demo, 9 sản phẩm trong collection Best Sellers, biến thể `IAMS-INDOOR-CAT-22LB` để tồn kho 0.
+- `seed-catalog.ts` upload ảnh (JPEG/PNG/WebP, mỗi file đúng MIME type) qua `uploadFilesWorkflow` lên bucket `pawl-media`; chỉ upload khi tạo sản phẩm mới nên chạy lại không sinh ảnh trùng.
+- Script mới `clear-catalog-and-orders.ts confirm`: xoá toàn bộ sản phẩm, tồn kho, ảnh sản phẩm trong bucket, đơn hàng, fulfillment, giỏ hàng, payment collection và reservation. Đã chạy trên `pawl-dev`: xoá 37 sản phẩm, 29 đơn hàng thử nghiệm và 45 giỏ hàng.
+
+### 1.9 Thay đổi so với kế hoạch ban đầu (15/10)
 
 | Kế hoạch cũ | Hiện tại | Lý do |
 | --- | --- | --- |

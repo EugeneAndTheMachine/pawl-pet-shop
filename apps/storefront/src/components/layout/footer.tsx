@@ -92,7 +92,7 @@ export function Footer() {
               </li>
             ))}
           </ul>
-          <p className="font-semibold text-brand-strong">Student project – not a real business.</p>
+          <p className="font-semibold text-brand-strong">Pawl - The pet shop</p>
         </div>
       </div>
     </footer>

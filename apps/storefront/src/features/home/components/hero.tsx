@@ -1,7 +1,6 @@
 import hero960 from '../../../assets/images/hero-960.webp'
 import hero1920 from '../../../assets/images/hero-1920.webp'
 import { ButtonLink } from '../../../components/ui/button'
-import { CatIcon, DogIcon } from '../../../components/ui/icons'
 
 export function Hero() {
   return (
@@ -28,10 +27,10 @@ export function Hero() {
             Shop now
           </ButtonLink>
           <ButtonLink to="/c/cat" size="lg" variant="light">
-            <CatIcon className="text-xl" /> For cats
+            For cats
           </ButtonLink>
           <ButtonLink to="/c/dog" size="lg" variant="light">
-            <DogIcon className="text-xl" /> For dogs
+            For dogs
           </ButtonLink>
         </div>
       </div>

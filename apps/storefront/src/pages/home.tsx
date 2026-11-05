@@ -20,7 +20,7 @@ export default function HomePage() {
       <title>Pawl - Food & accessories for cats and dogs</title>
       <meta
         name="description"
-        content="Pawl sells genuine dry food, wet food, litter, treats and accessories for cats and dogs. Filter by life stage and health needs, with fast delivery in Ho Chi Minh City and Hanoi."
+        content="Pawl sells genuine dry food, wet food, litter, treats and accessories for cats and dogs. Filter by life stage and health needs, with fast delivery in Ho Chi Minh City."
       />
       <Hero />
       <TrustStrip />

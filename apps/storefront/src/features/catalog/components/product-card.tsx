@@ -27,8 +27,14 @@ export function ProductCard({ product }: { product: HttpTypes.StoreProduct }) {
       onPointerEnter={() => prefetch(product.handle)}
       onFocus={() => prefetch(product.handle)}
     >
-      <Link to={href} className="relative block aspect-square bg-surface p-4" tabIndex={-1} aria-hidden="true">
-        <ProductImage src={product.thumbnail} alt="" className="size-full transition-transform duration-300 group-hover:scale-105" />
+      {/* Fixed square frame: the photo is taken out of the flow and scaled to fit, so tall or wide
+          photos never stretch the card and are always shown whole */}
+      <Link to={href} className="relative block aspect-square overflow-hidden border-b border-line/60 bg-white" tabIndex={-1} aria-hidden="true">
+        <ProductImage
+          src={product.thumbnail}
+          alt=""
+          className="absolute inset-0 size-full p-4 transition-transform duration-300 group-hover:scale-105"
+        />
         {!inStock && (
           <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 text-xs font-semibold text-white">Out of stock</span>
         )}
@@ -55,10 +61,10 @@ export function ProductCard({ product }: { product: HttpTypes.StoreProduct }) {
         )}
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-2">
-          <div>
+          <div className="min-w-0">
             {min != null ? (
-              <p className="text-lg font-bold text-brand-strong">
-                {max != null && max > min && <span className="mr-1 text-xs font-medium text-ink-soft">from</span>}
+              <p className="flex flex-wrap items-baseline gap-x-1 text-lg font-bold text-brand-strong">
+                {max != null && max > min && <span className="text-xs font-medium text-ink-soft">from</span>}
                 {formatVND(min)}
               </p>
             ) : (

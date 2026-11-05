@@ -56,12 +56,21 @@ Khởi tạo database và dữ liệu mẫu:
 node ./src/scripts/check-db.mjs                # in ra phiên bản Postgres nếu kết nối ổn
 npx medusa db:migrate                          # tạo ~148 bảng; lần đầu mất vài phút vì DB ở xa
 npx medusa exec ./src/scripts/seed.ts          # store, region VN, thuế, kho, vận chuyển, mã PAWL10, publishable key
-npx medusa exec ./src/scripts/seed-catalog.ts  # 13 danh mục, 36 sản phẩm, tồn kho
+npx medusa exec ./src/scripts/seed-catalog.ts  # 13 danh mục, 44 sản phẩm, tồn kho, upload ảnh từ materials/Items
 npx medusa user -e admin@pawl.local -p <mat-khau-admin>
 npm run dev
 ```
 
-`seed.ts` in ra dòng `VITE_MEDUSA_PUBLISHABLE_KEY=pk_...` ở cuối; chép lại cho bước 4. Mở http://localhost:9000/app và đăng nhập bằng tài khoản admin vừa tạo.
+`seed.ts` in ra dòng `VITE_MEDUSA_PUBLISHABLE_KEY=pk_...` ở cuối; chép lại cho bước 4.
+
+Ảnh sản phẩm lấy từ `materials/Items/<Loài>/<Phân loại>/<tên sản phẩm>.jpg|png` (khai báo ở trường `image` trong `src/scripts/data/catalog.ts`) và được upload lên bucket `pawl-media` khi tạo sản phẩm mới. JPEG, PNG và WebP đều được, có thể để lẫn lộn trong cùng thư mục. Ảnh nào không tìm thấy thì sản phẩm dùng ảnh placeholder và script in cảnh báo. Thư mục `materials/Items` nằm trong `.gitignore` (ảnh đã có sẵn trên Supabase Storage của `pawl-dev`); muốn seed kèm ảnh trên database khác thì chép thư mục này từ máy đã có. Muốn xoá sạch sản phẩm, đơn hàng, giỏ hàng để seed lại catalog (chỉ dùng khi shop chưa vận hành thật):
+
+```bash
+npx medusa exec ./src/scripts/clear-catalog-and-orders.ts confirm
+npx medusa exec ./src/scripts/seed-catalog.ts
+```
+
+Script giữ nguyên store, region, vận chuyển, kho, danh mục, tag, khách hàng, khuyến mãi và tài khoản admin. Backend đang chạy cache danh sách sản phẩm tối đa 5 phút; khởi động lại backend để thấy ngay catalog mới. Mở http://localhost:9000/app và đăng nhập bằng tài khoản admin vừa tạo.
 
 ## 4. Storefront
 

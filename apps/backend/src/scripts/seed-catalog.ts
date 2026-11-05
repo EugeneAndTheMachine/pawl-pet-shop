@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "fs"
+import path from "path"
 import { ExecArgs } from "@medusajs/framework/types"
 import {
   ContainerRegistrationKeys,
@@ -11,6 +13,7 @@ import {
   createProductCategoriesWorkflow,
   createProductTagsWorkflow,
   createProductsWorkflow,
+  uploadFilesWorkflow,
 } from "@medusajs/medusa/core-flows"
 import {
   BESTSELLER_COLLECTION,
@@ -20,9 +23,20 @@ import {
 } from "./data/catalog"
 import { STOCK_LOCATION_NAME } from "./seed"
 
-// Demo catalog: npx medusa exec ./src/scripts/seed-catalog.ts (run seed.ts first)
+// Catalog: npx medusa exec ./src/scripts/seed-catalog.ts (run seed.ts first)
 // Idempotent: existing categories, tags and products (matched by handle) are left untouched,
-// so edits made in Admin survive a re-run.
+// so edits made in Admin survive a re-run. Product photos are read from materials/Items and
+// uploaded through the File Module (Supabase Storage when S3_* is set) only for new products.
+
+// Folder holding the product photos; override with CATALOG_IMAGES_DIR if the repo layout differs
+const IMAGES_DIR = process.env.CATALOG_IMAGES_DIR ?? path.resolve(process.cwd(), "../../materials/Items")
+const IMAGE_MIME_TYPES: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+}
+const UPLOAD_BATCH_SIZE = 8
 
 // Tag convention shared with the storefront filters and Phase 2 recommendations
 const TAG_VALUES: Record<string, string[]> = {
@@ -40,9 +54,29 @@ function assertValidTag(tag: string, handle: string) {
   }
 }
 
-function placeholderImage(brand: string) {
-  const text = encodeURIComponent(brand)
+function placeholderImage(label: string) {
+  const text = encodeURIComponent(label)
   return `https://placehold.co/800x800/F4EBDD/F18926/png?text=${text}&font=raleway`
+}
+
+type ImageFile = { handle: string; filename: string; mimeType: string; content: string }
+
+function readProductImage(p: ProductSeed): ImageFile | string {
+  const file = path.join(IMAGES_DIR, p.image)
+  const ext = path.extname(file).toLowerCase()
+  const mimeType = IMAGE_MIME_TYPES[ext]
+  if (!mimeType) {
+    return `unsupported image type "${ext}"`
+  }
+  if (!existsSync(file)) {
+    return `image not found at ${file}`
+  }
+  return {
+    handle: p.handle,
+    filename: `${p.handle}${ext === ".jpeg" ? ".jpg" : ext}`,
+    mimeType,
+    content: readFileSync(file).toString("base64"),
+  }
 }
 
 export default async function seedCatalog({ container }: ExecArgs) {
@@ -115,8 +149,32 @@ export default async function seedCatalog({ container }: ExecArgs) {
   )
   const newProducts = PRODUCTS.filter((p) => !existingHandles.has(p.handle))
 
+  // Product photos: JPEG, PNG and WebP are uploaded as they are, each with its own MIME type
+  const imageUrls = new Map<string, string>()
+  const imageFiles: ImageFile[] = []
+  for (const p of newProducts) {
+    const result = readProductImage(p)
+    if (typeof result === "string") {
+      logger.warn(`${p.handle}: ${result}, using a placeholder image`)
+    } else {
+      imageFiles.push(result)
+    }
+  }
+  for (let i = 0; i < imageFiles.length; i += UPLOAD_BATCH_SIZE) {
+    const batch = imageFiles.slice(i, i + UPLOAD_BATCH_SIZE)
+    const { result } = await uploadFilesWorkflow(container).run({
+      input: {
+        files: batch.map(({ filename, mimeType, content }) => ({ filename, mimeType, content, access: "public" as const })),
+      },
+    })
+    batch.forEach((f, idx) => imageUrls.set(f.handle, result[idx].url))
+  }
+  if (imageFiles.length) {
+    logger.info(`Uploaded ${imageFiles.length} product images`)
+  }
+
   const toInput = (p: ProductSeed) => {
-    const image = placeholderImage(p.brand)
+    const image = imageUrls.get(p.handle) ?? placeholderImage(p.brand ?? p.title)
     return {
       title: p.title,
       handle: p.handle,
@@ -130,7 +188,7 @@ export default async function seedCatalog({ container }: ExecArgs) {
       shipping_profile_id: shippingProfile.id,
       sales_channels: [{ id: store.default_sales_channel_id! }],
       metadata: {
-        brand: p.brand,
+        ...(p.brand ? { brand: p.brand } : {}),
         ...(p.ingredients ? { ingredients: p.ingredients } : {}),
         ...(p.kcal_per_kg ? { kcal_per_kg: p.kcal_per_kg } : {}),
         ...(p.feeding_guide ? { feeding_guide: p.feeding_guide } : {}),

@@ -10,8 +10,8 @@ export function ProductGallery({ product }: { product: HttpTypes.StoreProduct })
 
   return (
     <div className="flex flex-col gap-3 md:flex-row-reverse">
-      <div className="relative aspect-square flex-1 overflow-hidden rounded-3xl bg-white p-6 shadow-card">
-        <ProductImage src={current} alt={product.title ?? ''} className="size-full" eager />
+      <div className="relative aspect-square flex-1 overflow-hidden rounded-3xl bg-white shadow-card">
+        <ProductImage src={current} alt={product.title ?? ''} className="absolute inset-0 size-full p-6" eager />
       </div>
       {urls.length > 1 && (
         <ul className="no-scrollbar flex gap-3 overflow-x-auto md:w-20 md:flex-col" aria-label="Product images">

@@ -70,7 +70,9 @@ Workflow tự chạy khi push lên `main` có thay đổi trong `apps/backend/`.
    | Linux Plan | **Create new** → `pawl-plan` |
    | Pricing plan | **Basic B1**. Bấm *Explore pricing plans* nếu không thấy. **Không chọn Free F1**: F1 chỉ cho dùng CPU 60 phút mỗi ngày, Medusa không chạy nổi |
 
-   Nếu báo lỗi kiểu `RequestDisallowedByAzure` / region không được phép: subscription sinh viên chỉ cho tạo ở một số region. Chọn **East Asia** (Hồng Kông) hoặc region gần nhất mà form cho phép.
+   Nếu báo lỗi kiểu `RequestDisallowedByAzure` / region không được phép: subscription sinh viên chỉ cho tạo ở một số region. Xem danh sách ở **Policy** → **Assignments** → assignment về *allowed regions/locations* → tab **Parameters**, rồi chọn theo thứ tự ưu tiên: **Malaysia West** → **Japan East** / **Korea Central** → **Central India** → **Australia East**.
+
+   **Không chọn East Asia (Hồng Kông) hay region nào ở Trung Quốc đại lục:** Gemini API [không hỗ trợ các vùng này](https://ai.google.dev/gemini-api/docs/available-regions), chatbot sẽ luôn báo lỗi. Region của Web App không đổi được sau khi tạo, chọn sai thì phải tạo lại.
 3. Tab **Database**: không tạo (đã có Supabase).
 4. Tab **Deployment**:
    - Continuous deployment: **Disable** (repo đã có workflow riêng, để Azure tự tạo workflow sẽ bị trùng).
@@ -228,6 +230,8 @@ Email (xác nhận đơn, link đặt lại mật khẩu) vẫn được **in ra
 | `remaining connection slots are reserved` / `too many clients` | Gói Free có 15 kết nối cho cả project. Backend trên Azure dùng 5, mỗi máy chạy `npm run dev` dùng thêm 5: tối đa 2 máy dev chạy cùng lúc |
 | Tạo Web App báo `RequestDisallowedByAzure` | Subscription sinh viên không cho dùng region đó: chọn region khác (bước 2) |
 | Chatbot báo "busy" | Gemini đang quá tải (503) hoặc hết quota, thử lại sau |
+| Chatbot luôn báo "could not answer", log có `[chat] failed … status=400 … User location is not supported` | Web App nằm ở region Gemini không hỗ trợ (ví dụ East Asia/Hồng Kông). Tạo lại Web App ở region được hỗ trợ (bước 2) |
+| Chatbot báo "not available", log có `GEMINI_API_KEY is not set` | Thiếu biến `GEMINI_API_KEY` trên Azure |
 
 ## 9. Chi phí và lưu ý
 

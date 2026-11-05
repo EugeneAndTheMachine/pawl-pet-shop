@@ -19,7 +19,7 @@ export function CheckoutSummary({ cart }: { cart: HttpTypes.StoreCart }) {
       <ul className="max-h-80 divide-y divide-line overflow-y-auto">
         {items.map((item) => (
           <li key={item.id} className="flex gap-3 py-3 first:pt-0">
-            <div className="relative size-16 shrink-0 rounded-xl bg-surface p-1">
+            <div className="relative size-16 shrink-0 rounded-xl border border-line/60 bg-white p-1">
               <ProductImage src={item.thumbnail} alt={item.product_title ?? ''} className="size-full" />
               <span className="absolute -right-1.5 -top-1.5 grid min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] font-bold leading-5 text-white">
                 {item.quantity}

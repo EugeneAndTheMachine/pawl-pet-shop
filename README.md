@@ -102,7 +102,7 @@ pawl/
 │   │       ├── api/             # route tự viết (POST /store/qr-payments/confirm) + middlewares
 │   │       ├── modules/         # qr-payment: Payment Module Provider
 │   │       ├── subscribers/     # email xác nhận đơn, đặt lại mật khẩu (in ra console)
-│   │       └── scripts/         # check-db, seed, seed-catalog, reset-demo-data
+│   │       └── scripts/         # check-db, seed, seed-catalog, clear-catalog-and-orders, reset-demo-data
 │   ├── storefront/              # Vite + React
 │   │   └── src/
 │   │       ├── app/             # router, providers, guards
@@ -137,7 +137,7 @@ cp .env.example .env                           # điền DATABASE_URL, S3_*, JWT
 node ./src/scripts/check-db.mjs                # kiểm tra kết nối tới Supabase
 npx medusa db:migrate                          # tạo bảng (lần đầu mất vài phút)
 npx medusa exec ./src/scripts/seed.ts          # store, region VN, kho, vận chuyển, publishable key
-npx medusa exec ./src/scripts/seed-catalog.ts  # danh mục và sản phẩm mẫu
+npx medusa exec ./src/scripts/seed-catalog.ts  # danh mục, 44 sản phẩm, upload ảnh từ materials/Items
 npx medusa user -e admin@pawl.local -p <mat-khau>
 npm run dev                                    # http://localhost:9000/app
 ```
