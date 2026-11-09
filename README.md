@@ -2,7 +2,7 @@
 
 # 🐾 Pawl
 
-**Cửa hàng online cho chó mèo — thức ăn, cát vệ sinh, snack, dinh dưỡng bổ sung và phụ kiện.**
+**Cửa hàng online cho chó mèo - thức ăn, cát vệ sinh, snack, dinh dưỡng bổ sung và phụ kiện.**
 
 Đồ án môn Electronic Commerce (CO3027) · Website B2C xây dựng trên Medusa v2 và Supabase
 
@@ -36,7 +36,7 @@
 
 ## Giới thiệu
 
-Pawl bán đồ cho thú cưng (ưu tiên mèo) tới người đi làm 22–40 tuổi ở TP.HCM và Hà Nội, những người quen mua sắm và thanh toán online. **Phase 1** là một cửa hàng hoàn chỉnh, đáp ứng các yêu cầu bắt buộc của đồ án: quản lý sản phẩm, giỏ hàng, thanh toán, quản lý đơn hàng, tuỳ chọn giao hàng và bảo mật. **Phase 2** bổ sung hồ sơ thú cưng, gợi ý sản phẩm và đặt hàng định kỳ.
+Pawl bán đồ cho thú cưng (chó và mèo) ở TP.HCM và Hà Nội, những người quen mua sắm và thanh toán online. **Phase 1** là một cửa hàng hoàn chỉnh, đáp ứng các yêu cầu bắt buộc của đồ án: quản lý sản phẩm, giỏ hàng, thanh toán, quản lý đơn hàng, tuỳ chọn giao hàng và bảo mật. **Phase 2** bổ sung hồ sơ thú cưng, gợi ý sản phẩm và đặt hàng định kỳ.
 
 Giao diện storefront bằng tiếng Anh, giá tính bằng VND (đã gồm VAT), địa chỉ theo 34 tỉnh/thành của Việt Nam.
 
@@ -172,9 +172,9 @@ Hướng dẫn đầy đủ, ý nghĩa từng biến môi trường và bảng x
 
 | Vai trò | Đăng nhập ở | Tài khoản |
 |---|---|---|
-| Quản trị viên | http://localhost:9000/app | `admin@pawl.local`, mật khẩu tạo bằng `npx medusa user` (nhóm gửi riêng, không lưu trong repo) |
-| Khách hàng | http://localhost:5173/register | Tự đăng ký; link đặt lại mật khẩu in ra console của backend |
-| Khách vãng lai | http://localhost:5173 | Không cần tài khoản, checkout bằng email và số điện thoại |
+| Quản trị viên | https://pawl-be-dcamczb6h9bfcxbw.malaysiawest-01.azurewebsites.net/app | `admin@pawl.local`, mật khẩu tạo bằng `npx medusa user` (nhóm gửi riêng, không lưu trong repo) |
+| Khách hàng | https://pawl-two.vercel.app//register | Tự đăng ký; link đặt lại mật khẩu in ra console của backend |
+| Khách vãng lai | https://pawl-two.vercel.app/ | Không cần tài khoản, checkout bằng email và số điện thoại |
 
 Mã giảm giá demo: **`PAWL10`** (giảm 10% toàn đơn).
 
